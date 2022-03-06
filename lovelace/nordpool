@@ -1,0 +1,267 @@
+views:
+  - title: Tabeller
+    badges: []
+    cards:
+      - type: custom:flex-table-card
+        title: Idag
+        entities:
+          include: sensor.nordpool_kwh_se3_sek_4_10_0
+        columns:
+          - name: Timme
+            data: raw_today
+            modify: new Date(x.start).getHours()
+            icon: mdi:clock
+          - name: Pris(öre/kwh)
+            data: today
+            modify: parseFloat(x * 100).toFixed(2)
+            align: right
+            icon: mdi:cash
+          - name: Pris/överf/skatt
+            data: today
+            modify: (((parseFloat(x * 100)) + (28.8 + 36)) * 1.25 ).toFixed(2)
+            align: right
+            icon: mdi:cash
+      - type: custom:flex-table-card
+        title: Imorgon
+        entities:
+          include: sensor.nordpool_kwh_se3_sek_4_10_0
+        columns:
+          - name: Timme
+            data: raw_tomorrow
+            modify: new Date(x.start).getHours()
+            icon: mdi:clock
+          - name: Pris(öre/kwh)
+            data: tomorrow
+            modify: parseFloat(x * 100).toFixed(2)
+            align: right
+            icon: mdi:cash
+          - name: Pris/överf/skatt
+            data: tomorrow
+            modify: (((parseFloat(x * 100)) + (28.8 + 36)) * 1.25 ).toFixed(2)
+            align: right
+            icon: mdi:cash
+  - title: Grafer
+    path: grafer
+    badges: []
+    cards:
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: Nordpool-priser Idag
+        graph_span: 24h
+        span:
+          start: day
+          offset: +0H
+        apex_config:
+          yaxis:
+            min: -0.1
+        series:
+          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+            name: Idag
+            data_generator: |
+              return entity.attributes.raw_today.map((entry) => {
+                return [new Date(entry.start), entry.value];
+              });
+            type: column
+            float_precision: 2
+            show:
+              legend_value: false
+              in_header: raw
+              extremas: true
+            group_by:
+              duration: 1h
+              func: last
+            extend_to_end: false
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: Nordpool-priser Imorgon
+        graph_span: 24h
+        span:
+          start: day
+          offset: +24H
+        apex_config:
+          yaxis:
+            min: -0.1
+        series:
+          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+            name: Imorgon
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((entry) => {
+                return [new Date(entry.start), entry.value];
+              });
+            offset: +0h
+            type: column
+            float_precision: 2
+            show:
+              legend_value: false
+              in_header: raw
+              extremas: true
+            group_by:
+              duration: 1h
+              func: last
+      - type: custom:apexcharts-card
+        graph_span: 48h
+        span:
+          start: day
+          offset: +0H
+        header:
+          title: Elpris med påslag
+          show: true
+          show_states: false
+          colorize_states: true
+        hours_12: false
+        stacked: false
+        experimental:
+          color_threshold: true
+        all_series_config:
+          show:
+            legend_value: false
+            datalabels: false
+            extremas: true
+            in_brush: true
+          float_precision: 3
+          invert: false
+          fill_raw: last
+          color_threshold:
+            - value: -1
+              color: 1E90FF
+            - value: 2.5
+              color: '008000'
+            - value: 3.5
+              color: DAA520
+            - value: 4.5
+              color: FF0000
+        now:
+          show: true
+          label: Nu
+          color: red
+        series:
+          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+            name: Idag
+            opacity: 0.3
+            extend_to_end: false
+            offset: +0h
+            type: area
+            stroke_width: 0.5
+            curve: stepline
+            data_generator: |
+
+              return entity.attributes.raw_today.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_today[index]["value"]];
+
+              });
+          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+            name: Imorgon
+            opacity: 0.3
+            type: area
+            stroke_width: 0.5
+            curve: stepline
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_tomorrow[index]["value"]];
+
+              });
+          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+            name: Med avgifter
+            opacity: 1
+            extend_to_end: false
+            offset: +0h
+            type: line
+            stroke_width: 2
+            curve: smooth
+            data_generator: |
+
+              return entity.attributes.raw_today.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_today[index]["value"]+(0.092 + 0.356 + 0.06 + 0.014)) * 1.25)];
+
+              });
+          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+            name: Med avgifter
+            opacity: 1
+            extend_to_end: false
+            offset: +0h
+            type: line
+            stroke_width: 2
+            curve: smooth
+            data_generator: |
+
+              return entity.attributes.raw_tomorrow.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_tomorrow[index]["value"]+(0.288 + 0.36)) * 1.25)];
+
+              });
+        apex_config:
+          chart:
+            height: 400px
+            animations:
+              enabled: true
+              easing: easeinout
+              speed: 800
+              animateGradually:
+                enabled: true
+                delay: 150
+            zoom:
+              enabled: true
+              type: x
+              autoScaleYaxis: true
+              zoomedArea:
+                fill:
+                  color: '#90CAF9'
+                  opacity: 0.4
+                stroke:
+                  color: '#0D47A1'
+                  opacity: 0.4
+                  width: 1
+          legend:
+            show: false
+            floating: true
+            offsetY: 25
+          yaxis:
+            opposite: false
+            reversed: false
+            logarithmic: false
+            decimalsInFloat: 2
+            labels:
+              show: true
+            tooltip:
+              enabled: true
+            crosshairs:
+              show: true
+          xaxis:
+            labels:
+              show: true
+              rotate: -45
+              rotateAlways: true
+            logarithmic: true
+          stroke:
+            show: true
+            dashArray:
+              - 0
+              - 0
+              - 2
+              - 2
+          plotOptions:
+            candlestick:
+              colors:
+                upward: '#00B746'
+                downward: '#EF403C'
+              wick:
+                useFillColor: true
+          markers:
+            size:
+              - 2
+              - 1
+              - 0
+              - 0
+          grid:
+            show: true
+            strokeDashArray: 1
+            position: front
+            xaxis:
+              lines:
+                show: true
+title: Nordpool
