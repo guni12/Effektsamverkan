@@ -176,7 +176,7 @@ views:
 
               return entity.attributes.raw_today.map((start, index) => {
 
-                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_today[index]["value"]+(0.092 + 0.356 + 0.06 + 0.014)) * 1.25)];
+                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_today[index]["value"]+(0.288 + 0.36)) * 1.25)];
 
               });
           - entity: sensor.nordpool_kwh_se3_sek_4_10_0
