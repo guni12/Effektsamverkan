@@ -18,7 +18,7 @@ views:
             icon: mdi:cash
           - name: Pris/överf/skatt
             data: today
-            modify: (((parseFloat(x * 100)) + (28.8 + 36)) * 1.25 ).toFixed(2)
+            modify: (((parseFloat(x * 100)) + (28.8 + 36 + 1.4)) * 1.25 ).toFixed(2)
             align: right
             icon: mdi:cash
       - type: custom:flex-table-card
@@ -37,7 +37,7 @@ views:
             icon: mdi:cash
           - name: Pris/överf/skatt
             data: tomorrow
-            modify: (((parseFloat(x * 100)) + (28.8 + 36)) * 1.25 ).toFixed(2)
+            modify: (((parseFloat(x * 100)) + (28.8 + 36 + 1.4)) * 1.25 ).toFixed(2)
             align: right
             icon: mdi:cash
   - title: Grafer
@@ -176,7 +176,7 @@ views:
 
               return entity.attributes.raw_today.map((start, index) => {
 
-                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_today[index]["value"]+(0.288 + 0.36)) * 1.25)];
+                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_today[index]["value"]+(0.288 + 0.36 + 0.014)) * 1.25)];
 
               });
           - entity: sensor.nordpool_kwh_se3_sek_4_10_0
@@ -191,7 +191,7 @@ views:
 
               return entity.attributes.raw_tomorrow.map((start, index) => {
 
-                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_tomorrow[index]["value"]+(0.288 + 0.36)) * 1.25)];
+                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_tomorrow[index]["value"]+(0.288 + 0.36 + 0.014)) * 1.25)];
 
               });
         apex_config:
