@@ -71,7 +71,7 @@ views:
             group_by:
               duration: 1h
               func: last
-            extend_to_end: false
+            extend_to: false
       - type: custom:apexcharts-card
         header:
           show: true
@@ -140,7 +140,7 @@ views:
           - entity: sensor.nordpool_kwh_se3_sek_4_10_0
             name: Idag
             opacity: 0.3
-            extend_to_end: false
+            extend_to: false
             offset: +0h
             type: area
             stroke_width: 0.5
@@ -167,7 +167,7 @@ views:
           - entity: sensor.nordpool_kwh_se3_sek_4_10_0
             name: Med avgifter
             opacity: 1
-            extend_to_end: false
+            extend_to: false
             offset: +0h
             type: line
             stroke_width: 2
@@ -182,7 +182,7 @@ views:
           - entity: sensor.nordpool_kwh_se3_sek_4_10_0
             name: Med avgifter
             opacity: 1
-            extend_to_end: false
+            extend_to: false
             offset: +0h
             type: line
             stroke_width: 2
