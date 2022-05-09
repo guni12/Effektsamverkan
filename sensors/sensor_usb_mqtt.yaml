@@ -1,0 +1,143 @@
+- platform: mqtt
+  name: 'USB energy consumption total'
+  state_topic: '/usb/energy_consumption_total'
+  unit_of_measurement: 'kWh'
+  unique_id: 'usb_energy_consumption_total'
+  device_class: energy
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB energy production total'
+  state_topic: '/usb/energy_production_total'
+  unit_of_measurement: 'kWh'
+  unique_id: 'usb_energy_production_total'
+  device_class: energy
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB power consumption'
+  state_topic: '/usb/power_consumption'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_power_consumption'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB power production'
+  state_topic: '/usb/power_production'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_power_production'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB consumption phase l1'
+  state_topic: '/usb/consumption_phase_l1'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_consumption_phase_l1'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB consumption phase l2'
+  state_topic: '/usb/consumption_phase_l2'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_consumption_phase_l2'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB consumption phase l3'
+  state_topic: '/usb/consumption_phase_l3'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_consumption_phase_l3'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB production phase l1'
+  state_topic: '/usb/production_phase_l1'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_production_phase_l1'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB production phase l2'
+  state_topic: '/usb/production_phase_l2'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_production_phase_l2'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB production phase l3'
+  state_topic: '/usb/production_phase_l3'
+  unit_of_measurement: 'kW'
+  unique_id: 'usb_production_phase_l3'
+  device_class: power
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB voltage phase l1'
+  state_topic: '/usb/voltage_phase_l1'
+  unit_of_measurement: 'V'
+  unique_id: 'usb_voltage_phase_l1'
+  device_class: voltage
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB voltage phase l2'
+  state_topic: '/usb/voltage_phase_l2'
+  unit_of_measurement: 'V'
+  unique_id: 'usb_voltage_phase_l2'
+  device_class: voltage
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB voltage phase l3'
+  state_topic: '/usb/voltage_phase_l3'
+  unit_of_measurement: 'V'
+  unique_id: 'usb_voltage_phase_l3'
+  device_class: voltage
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB current phase l1'
+  state_topic: '/usb/current_phase_l1'
+  unit_of_measurement: 'A'
+  unique_id: 'usb_current_phase_l1'
+  device_class: current
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB current phase l2'
+  state_topic: '/usb/current_phase_l2'
+  unit_of_measurement: 'A'
+  unique_id: 'usb_current_phase_l2'
+  device_class: current
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'
+
+- platform: mqtt
+  name: 'USB current phase l3'
+  state_topic: '/usb/current_phase_l3'
+  unit_of_measurement: 'A'
+  unique_id: 'usb_current_phase_l3'
+  device_class: current
+  state_class: measurement
+  value_template: '{{ value | float(0) | round(1) }}'

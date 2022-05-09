@@ -1,0 +1,9 @@
+---
+hello_world:
+  module: hello
+  class: HelloWorld
+  
+meter_reader:
+  module: meter_reader
+  class: MeterReading
+  log: meter_log
