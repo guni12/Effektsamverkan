@@ -25,7 +25,6 @@ class MeterReading(hass.Hass):
     self.log("In initialize")
     client = mqtt.Client("client-id")
     client.on_connect = self.on_connect
-    client.on_message = self.messageFunction
     client.username_pw_set("user","pass")
     client.connect(broker, port, delay)
     client.loop_start()
