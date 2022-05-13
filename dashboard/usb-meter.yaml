@@ -1,18 +1,19 @@
 type: entities
 entities:
-  - entity: sensor.usb_energy_consumption_total
-  - entity: sensor.usb_energy_production_total
-  - entity: sensor.usb_power_consumption
-  - entity: sensor.usb_power_production
-  - entity: sensor.usb_consumption_phase_l1
-  - entity: sensor.usb_consumption_phase_l2
-  - entity: sensor.usb_consumption_phase_l3
-  - entity: sensor.usb_production_phase_l1
-  - entity: sensor.usb_production_phase_l2
-  - entity: sensor.usb_production_phase_l3
-  - entity: sensor.usb_current_phase_l1
-  - entity: sensor.usb_current_phase_l2
-  - entity: sensor.usb_current_phase_l3
-  - entity: sensor.usb_voltage_phase_l1
-  - entity: sensor.usb_voltage_phase_l2
-  - entity: sensor.usb_voltage_phase_l3
+  - sensor.ftdi_energy_consumption_total
+  - sensor.ftdi_energy_production_total
+  - sensor.ftdi_power_consumption
+  - sensor.ftdi_power_production
+  - sensor.ftdi_consumption_phase_l1
+  - sensor.ftdi_consumption_phase_l2
+  - sensor.ftdi_consumption_phase_l3
+  - sensor.ftdi_production_phase_l1
+  - sensor.ftdi_production_phase_l2
+  - sensor.ftdi_production_phase_l3
+  - sensor.ftdi_current_phase_l1
+  - sensor.ftdi_current_phase_l2
+  - sensor.ftdi_current_phase_l3
+  - sensor.ftdi_voltage_phase_l1
+  - sensor.ftdi_voltage_phase_l2
+  - sensor.ftdi_voltage_phase_l3
+title: FTDI USB till RJ11 6P6C

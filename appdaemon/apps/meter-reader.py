@@ -35,27 +35,27 @@ class MeterReading(hass.Hass):
   def on_connect(self, client, userdata, flags, rc):
     """"""
     self.log("Connected with result code  {}".format(str(rc)))
-    client.subscribe("/usb/energy_consumption_total")
-    client.subscribe("/usb/energy_production_total")
-    client.subscribe("/usb/power_consumption")
-    client.subscribe("/usb/power_production")
-    client.subscribe("/usb/consumption_phase_l1")
-    client.subscribe("/usb/production_phase_l1")
-    client.subscribe("/usb/consumption_phase_l2")
-    client.subscribe("/usb/production_phase_l2")
-    client.subscribe("/usb/consumption_phase_l3")
-    client.subscribe("/usb/production_phase_l3")
-    client.subscribe("/usb/voltage_phase_l1")
-    client.subscribe("/usb/voltage_phase_l2")
-    client.subscribe("/usb/voltage_phase_l3")
-    client.subscribe("/usb/current_phase_l1")
-    client.subscribe("/usb/current_phase_l2")
-    client.subscribe("/usb/current_phase_l3")
+    client.subscribe("homeassistant/sensor/ftdi/energy_consumption_total")
+    client.subscribe("homeassistant/sensor/ftdi/energy_production_total")
+    client.subscribe("homeassistant/sensor/ftdi/power_consumption")
+    client.subscribe("homeassistant/sensor/ftdi/power_production")
+    client.subscribe("homeassistant/sensor/ftdi/consumption_phase_l1")
+    client.subscribe("homeassistant/sensor/ftdi/production_phase_l1")
+    client.subscribe("homeassistant/sensor/ftdi/consumption_phase_l2")
+    client.subscribe("homeassistant/sensor/ftdi/production_phase_l2")
+    client.subscribe("homeassistant/sensor/ftdi/consumption_phase_l3")
+    client.subscribe("homeassistant/sensor/ftdi/production_phase_l3")
+    client.subscribe("homeassistant/sensor/ftdi/voltage_phase_l1")
+    client.subscribe("homeassistant/sensor/ftdi/voltage_phase_l2")
+    client.subscribe("homeassistant/sensor/ftdi/voltage_phase_l3")
+    client.subscribe("homeassistant/sensor/ftdi/current_phase_l1")
+    client.subscribe("homeassistant/sensor/ftdi/current_phase_l2")
+    client.subscribe("homeassistant/sensor/ftdi/current_phase_l3")
 
 
   async def energy(self, client, val, val2, val3):
     id = await self.slugify(val3)
-    sub = "/usb/" + id
+    sub = "homeassistant/sensor/ftdi/" + id
     client.publish(sub, val)
 
 

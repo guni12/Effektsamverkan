@@ -1,0 +1,48 @@
+default_config:
+
+utility_meter:
+  q_energy:
+    source: sensor.energy_consumption_total
+    name: k_energi
+    cycle: quarter-hourly
+  t_energy:
+    source: sensor.energy_consumption_total
+    name: t_energi
+    cycle: hourly
+  d_energy:
+    source: sensor.energy_consumption_total
+    name: d_energi
+    cycle: daily
+  m_energy:
+    source: sensor.energy_consumption_total
+    name: m_energi
+    cycle: monthly
+
+
+nordpool:
+
+logger:
+  default: debug
+  logs:
+    homeassistant.components.mqtt: debug
+    nordpool: debug
+    custom_components.nordpool: debug
+    custom_components.nordpool.sensor: debug
+    custom_components.nordpool.aio_price: debug
+
+    
+    
+# Text to speech
+tts:
+  - platform: google_translate
+
+automation ui: !include automations.yaml
+frontend:
+  themes: !include themes.yaml
+influxdb: !include influxdb.yaml
+scene: !include scenes.yaml
+
+automation manual: !include_dir_merge_list automations/
+script: !include_dir_merge_named scripts/
+template: !include_dir_merge_list templates/
+sensor: !include_dir_merge_list sensors/
