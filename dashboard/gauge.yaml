@@ -1,0 +1,121 @@
+type: vertical-stack
+cards:
+  - type: vertical-stack
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            name: Effekt total
+            entity: sensor.electricity_meter_power_consumption
+            min: 0
+            max: 22
+            needle: true
+            severity:
+              green: 0
+              yellow: 11
+              red: 13.2
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            name: Ström Fas1
+            entity: sensor.electricity_meter_current_phase_l1
+            min: 0
+            max: 32
+            needle: true
+            severity:
+              green: 0
+              yellow: 16
+              red: 19
+          - type: gauge
+            name: Ström Fas2
+            entity: sensor.electricity_meter_current_phase_l2
+            min: 0
+            max: 32
+            needle: true
+            severity:
+              green: 0
+              yellow: 16
+              red: 19
+          - type: gauge
+            name: Ström Fas3
+            entity: sensor.electricity_meter_current_phase_l3
+            min: 0
+            max: 32
+            needle: true
+            severity:
+              green: 0
+              yellow: 16
+              red: 19
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            name: Effekt Fas1
+            entity: sensor.electricity_meter_power_consumption_phase_l1
+            min: 0
+            max: 7.3
+            needle: true
+            severity:
+              green: 0
+              yellow: 3.67
+              red: 4.4
+          - type: gauge
+            name: Effekt Fas2
+            entity: sensor.electricity_meter_power_consumption_phase_l2
+            min: 0
+            max: 7.3
+            needle: true
+            severity:
+              green: 0
+              yellow: 3.67
+              red: 4.4
+          - type: gauge
+            name: Effekt Fas3
+            entity: sensor.electricity_meter_power_consumption_phase_l3
+            min: 0
+            max: 7.3
+            needle: true
+            severity:
+              green: 0
+              yellow: 3.67
+              red: 4.4
+      - type: horizontal-stack
+        cards:
+          - type: gauge
+            name: Spänning L1
+            entity: sensor.electricity_meter_voltage_phase_l1
+            min: 200
+            max: 260
+            needle: true
+            segments:
+              - from: 0
+                color: '#db4437'
+              - from: 207
+                color: '#43a047'
+              - from: 253
+                color: '#db4437'
+          - type: gauge
+            name: Spänning L2
+            entity: sensor.electricity_meter_voltage_phase_l2
+            min: 200
+            max: 260
+            needle: true
+            segments:
+              - from: 0
+                color: '#db4437'
+              - from: 207
+                color: '#43a047'
+              - from: 253
+                color: '#db4437'
+          - type: gauge
+            name: Spänning L3
+            entity: sensor.electricity_meter_voltage_phase_l3
+            min: 200
+            max: 260
+            needle: true
+            segments:
+              - from: 0
+                color: '#db4437'
+              - from: 207
+                color: '#43a047'
+              - from: 253
+                color: '#db4437'
