@@ -1,45 +1,4 @@
 views:
-  - title: Tabeller
-    badges: []
-    cards:
-      - type: custom:flex-table-card
-        title: Idag
-        entities:
-          include: sensor.nordpool_kwh_se3_sek_4_10_0
-        columns:
-          - name: Timme
-            data: raw_today
-            modify: new Date(x.start).getHours()
-            icon: mdi:clock
-          - name: Pris(öre/kwh)
-            data: today
-            modify: parseFloat(x * 100).toFixed(2)
-            align: right
-            icon: mdi:cash
-          - name: Pris/överf/skatt
-            data: today
-            modify: (((parseFloat(x * 100)) + (28.8 + 36 + 1.4)) * 1.25 ).toFixed(2)
-            align: right
-            icon: mdi:cash
-      - type: custom:flex-table-card
-        title: Imorgon
-        entities:
-          include: sensor.nordpool_kwh_se3_sek_4_10_0
-        columns:
-          - name: Timme
-            data: raw_tomorrow
-            modify: new Date(x.start).getHours()
-            icon: mdi:clock
-          - name: Pris(öre/kwh)
-            data: tomorrow
-            modify: parseFloat(x * 100).toFixed(2)
-            align: right
-            icon: mdi:cash
-          - name: Pris/överf/skatt
-            data: tomorrow
-            modify: (((parseFloat(x * 100)) + (28.8 + 36 + 1.4)) * 1.25 ).toFixed(2)
-            align: right
-            icon: mdi:cash
   - title: Grafer
     path: grafer
     badges: []
@@ -47,56 +6,154 @@ views:
       - type: custom:apexcharts-card
         header:
           show: true
-          title: Nordpool-priser Idag
-        graph_span: 24h
+          title: Nordpool-priser utan moms
+          show_states: false
+          colorize_states: true
+        hours_12: false
+        stacked: false
+        graph_span: 2d
         span:
           start: day
           offset: +0H
+        all_series_config:
+          show:
+            legend_value: false
+            datalabels: false
+            extremas: true
         apex_config:
           yaxis:
             min: -0.1
+        now:
+          show: true
+          label: Nu
+          color: red
         series:
-          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
             name: Idag
+            extend_to: false
             data_generator: |
               return entity.attributes.raw_today.map((entry) => {
                 return [new Date(entry.start), entry.value];
               });
             type: column
-            float_precision: 2
-            show:
-              legend_value: false
-              in_header: raw
-              extremas: true
+            float_precision: 1
             group_by:
               duration: 1h
               func: last
-            extend_to: false
-      - type: custom:apexcharts-card
-        header:
-          show: true
-          title: Nordpool-priser Imorgon
-        graph_span: 24h
-        span:
-          start: day
-          offset: +24H
-        apex_config:
-          yaxis:
-            min: -0.1
-        series:
-          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+              fill: 'null'
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
             name: Imorgon
             data_generator: |
               return entity.attributes.raw_tomorrow.map((entry) => {
                 return [new Date(entry.start), entry.value];
               });
-            offset: +0h
             type: column
-            float_precision: 2
-            show:
-              legend_value: false
-              in_header: raw
-              extremas: true
+            float_precision: 1
+            group_by:
+              duration: 1h
+              func: last
+            extend_to: end
+      - type: entity
+        entity: sensor.nordpool_kwh_se3_sek_3_10_0
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: Nordpool-priser med moms och påslag
+          show_states: false
+          colorize_states: true
+        graph_span: 2d
+        span:
+          start: day
+          offset: +0H
+        all_series_config:
+          show:
+            legend_value: false
+            datalabels: false
+            extremas: true
+        apex_config:
+          yaxis:
+            min: -0.1
+        now:
+          show: true
+          label: Nu
+          color: red
+        series:
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Idag
+            data_generator: |
+              return entity.attributes.raw_today.map((entry) => {
+                return [new Date(entry.start), (entry.value * 1.25)+7.5];
+              });
+            type: column
+            float_precision: 1
+            group_by:
+              duration: 1h
+              func: last
+              fill: 'null'
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Imorgon
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((entry) => {
+                return [new Date(entry.start), (entry.value * 1.25)+7.5];
+              });
+            type: column
+            float_precision: 1
+            group_by:
+              duration: 1h
+              func: last
+      - type: entities
+        entities:
+          - type: attribute
+            entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Maxpris idag
+            attribute: max
+          - type: attribute
+            entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Minpris idag
+            attribute: min
+      - type: custom:apexcharts-card
+        header:
+          show: true
+          title: Faktiska el-priser (med skatt, tariff, utan årsavg)
+          show_states: false
+          colorize_states: true
+        graph_span: 2d
+        span:
+          start: day
+          offset: +0H
+        all_series_config:
+          show:
+            legend_value: false
+            datalabels: false
+            extremas: true
+        apex_config:
+          yaxis:
+            min: -0.1
+        now:
+          show: true
+          label: Nu
+          color: red
+        series:
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Idag
+            data_generator: |
+              return entity.attributes.raw_today.map((entry) => {
+                return [new Date(entry.start), (entry.value * 1.25) + (20 + 45 + 7.5)];
+              });
+            type: column
+            float_precision: 1
+            group_by:
+              duration: 1h
+              func: last
+              fill: 'null'
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Imorgon
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((entry) => {
+                return [new Date(entry.start), (entry.value * 1.25) + (20 + 45 + 7.5)];
+              });
+            type: column
+            float_precision: 1
             group_by:
               duration: 1h
               func: last
@@ -106,7 +163,7 @@ views:
           start: day
           offset: +0H
         header:
-          title: Elpris med påslag
+          title: Elpris med timspotavtal + påslag GEAB
           show: true
           show_states: false
           colorize_states: true
@@ -124,20 +181,20 @@ views:
           invert: false
           fill_raw: last
           color_threshold:
-            - value: -1
+            - value: -100
               color: 1E90FF
-            - value: 2.5
+            - value: 250
               color: '008000'
-            - value: 3.5
+            - value: 350
               color: DAA520
-            - value: 4.5
+            - value: 450
               color: FF0000
         now:
           show: true
           label: Nu
           color: red
         series:
-          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
             name: Idag
             opacity: 0.3
             extend_to: false
@@ -152,7 +209,7 @@ views:
                 return [new Date(start["start"]).getTime(), entity.attributes.raw_today[index]["value"]];
 
               });
-          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
             name: Imorgon
             opacity: 0.3
             type: area
@@ -164,7 +221,7 @@ views:
                 return [new Date(start["start"]).getTime(), entity.attributes.raw_tomorrow[index]["value"]];
 
               });
-          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
             name: Med avgifter
             opacity: 1
             extend_to: false
@@ -176,10 +233,10 @@ views:
 
               return entity.attributes.raw_today.map((start, index) => {
 
-                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_today[index]["value"]+(0.288 + 0.36 + 0.014)) * 1.25)];
+                return [new Date(start["start"]).getTime(), (entity.attributes.raw_today[index]["value"] * 1.25) +(20 + 45 + 7.5)];
 
               });
-          - entity: sensor.nordpool_kwh_se3_sek_4_10_0
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
             name: Med avgifter
             opacity: 1
             extend_to: false
@@ -191,7 +248,7 @@ views:
 
               return entity.attributes.raw_tomorrow.map((start, index) => {
 
-                return [new Date(start["start"]).getTime(), ((entity.attributes.raw_tomorrow[index]["value"]+(0.288 + 0.36 + 0.014)) * 1.25)];
+                return [new Date(start["start"]).getTime(), (entity.attributes.raw_tomorrow[index]["value"] * 1.25) +(20 + 45 + 7.5)];
 
               });
         apex_config:
@@ -264,4 +321,45 @@ views:
             xaxis:
               lines:
                 show: true
+  - title: Tabeller
+    badges: []
+    cards:
+      - type: custom:flex-table-card
+        title: Idag
+        entities:
+          include: sensor.nordpool_kwh_se3_sek_3_10_0
+        columns:
+          - name: Timme
+            data: raw_today
+            modify: new Date(x.start).getHours()
+            icon: mdi:clock
+          - name: Pris(öre/kwh)
+            data: today
+            modify: parseFloat(x).toFixed(2)
+            align: right
+            icon: mdi:cash
+          - name: Pris/överf/skatt
+            data: today
+            modify: parseFloat((x * 1.25) + (20 + 45 + 7.5)).toFixed(2)
+            align: right
+            icon: mdi:cash
+      - type: custom:flex-table-card
+        title: Imorgon
+        entities:
+          include: sensor.nordpool_kwh_se3_sek_3_10_0
+        columns:
+          - name: Timme
+            data: raw_tomorrow
+            modify: new Date(x.start).getHours()
+            icon: mdi:clock
+          - name: Pris(öre/kwh)
+            data: tomorrow
+            modify: parseFloat(x).toFixed(2)
+            align: right
+            icon: mdi:cash
+          - name: Pris/överf/skatt
+            data: tomorrow
+            modify: parseFloat((x * 1.25) + (20 + 45 + 7.5)).toFixed(2)
+            align: right
+            icon: mdi:cash
 title: Nordpool
