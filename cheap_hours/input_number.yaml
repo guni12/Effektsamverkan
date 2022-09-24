@@ -1,0 +1,15 @@
+load_demo_nr_hours:
+    name: Load demo nr hours
+    unit_of_measurement: "h"
+    mode: box
+    min: 0
+    max: 36
+    step: 1
+
+highest_allowed_demo_price:
+    name: Highest allowed demo price
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 9999
+    step: 1

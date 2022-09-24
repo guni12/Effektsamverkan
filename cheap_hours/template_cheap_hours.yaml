@@ -1,0 +1,265 @@
+#
+# Unique settings for each device used
+#
+# This is for demo
+#
+# State: true when hour is cheap and chosen
+#
+# Input number: Nr of hours to load, no more than max available hours can be chosen
+#
+# Input datetime: If not set, all available hours can be chosen
+#
+# Attribute: shows chosen hours
+#
+- sensor:
+    - name: "Load demo between hours"
+      unique_id: load_demo_between_hours
+      state: >-
+          {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')|int(0)) %}
+          {% set start = states('input_datetime.start_load_demo') %}
+          {% set starthour = start.split(' ')[1].split(':')[0] %}
+          {% set startday = start.split(' ')[0].split('-')[2] %}
+          {% set stop = states('input_datetime.stop_load_demo') %}
+          {% set stophour = stop.split(' ')[1].split(':')[0] %}
+          {% set stopday = stop.split(' ')[0].split('-')[2] %}
+          {% set from = starthour | int %}
+          {% set today = now().day | int %}
+          {% set ldom = states('sensor.last_day_this_month') | int %}
+
+          {% if startday.startswith('0') %}
+            {% set startday = startday[1:] %}
+          {% endif %}
+            
+          {% if stopday.startswith('0') %}
+            {% set stopday = stopday[1:] %}
+          {% endif %}
+          
+          {% if today == ldom %}
+            {% set tomorrow = 1 %}
+          {% else %}
+            {% set tomorrow = today + 1 %}
+          {% endif %}
+          
+          {% if startday | int == tomorrow %}
+              {% set startday = startday %}
+          {% else %}
+              {% set startday = today %}
+              {% set from = now().hour %}
+          {% endif %}
+          
+          {% if stopday | int == today or stopday | int == tomorrow %}
+              {% set stopday = stopday %}
+          {% else %}
+              {% set stopday = tomorrow %}
+          {% endif %}
+          
+          {%- set starttoday = startday | int == today %}
+          {%- set stoptoday = stopday | int == today %}
+          
+          
+          {% if stoptoday and stophour | int > from %}
+            {% set to = stophour | int %}
+          {% else %}
+            {% set to = 24 %}
+          {% endif %}
+          
+          {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+          {%- set s = namespace(sorted=[]) %} 
+          {%- set s2 = namespace(sorted=[]) %}  
+          {%- set chosen = namespace(sorted=[]) %} 
+          {%- set chosendict = namespace(sorted=[]) %}
+          {%- set tod = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','raw_today') %}
+         
+          
+          {% if state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true 
+          and stoptoday == False 
+          and state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow")[0]!=None %}
+          {%- set tom = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','raw_tomorrow') %}
+            {% for i in range(from, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+            {% for i in range(0, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+              'price': tom[i].value,
+              'day': tom[i].start.day
+              }] %}
+            {%- endfor -%}
+
+            {% elif (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==false) or
+             (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true and stoptoday == True) %}
+              {% for i in range(from, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+
+            {%- else -%}
+              {% for i in range(from, to) %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {%- endfor -%}
+            {% endif %}
+            
+            {% for item in ns.hour_price|sort(attribute="price") %}
+              {% set s.sorted = s.sorted + [item] %}
+            {% endfor %}
+
+            {% set nr_hours = cheap_hours.number %}
+            {% if cheap_hours.number | int > s.sorted|length %}
+              {% set nr_hours = ns.hour_price|length %}
+            {% elif cheap_hours.number | int == 0 %}
+              {% set nr_hours = 3 %}
+            {% else %}
+              {% set nr_hours = cheap_hours.number | int %}
+            {% endif %}
+
+            {% for each in range(0, nr_hours) %}
+              {% set h = s.sorted[each]['hour'] %}
+              {% set d = s.sorted[each]['day'] %}
+              {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
+              {% if h == now().hour and d == now().day %}
+                {% set ns.cheapest_hour = True %}
+              {% endif %}
+              {%- if not loop.last -%}{% endif %}
+            {% endfor %}
+            {{ ns.cheapest_hour }}
+      attributes:
+        chosen_hours: >-
+          {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')|int(0)) %}
+          {% set start = states('input_datetime.start_load_demo') %}
+          {% set starthour = start.split(' ')[1].split(':')[0] %}
+          {% set startday = start.split(' ')[0].split('-')[2] %}
+          {% set stop = states('input_datetime.stop_load_demo') %}
+          {% set stophour = stop.split(' ')[1].split(':')[0] %}
+          {% set stopday = stop.split(' ')[0].split('-')[2] %}
+          {% set from = starthour | int %}
+          {% set today = now().day | int %}
+          {% set ldom = states('sensor.last_day_this_month') | int %}
+
+          {% if startday.startswith('0') %}
+            {% set startday = startday[1:] %}
+          {% endif %}
+            
+          {% if stopday.startswith('0') %}
+            {% set stopday = stopday[1:] %}
+          {% endif %}
+          
+          {% if today == ldom %}
+            {% set tomorrow = 1 %}
+          {% else %}
+            {% set tomorrow = today + 1 %}
+          {% endif %}
+          
+          {% if startday | int == tomorrow %}
+              {% set startday = startday %}
+          {% else %}
+              {% set startday = today %}
+              {% set from = now().hour %}
+          {% endif %}
+          
+          {% if stopday | int == today or stopday | int == tomorrow %}
+              {% set stopday = stopday %}
+          {% else %}
+              {% set stopday = tomorrow %}
+          {% endif %}
+          
+          {%- set starttoday = startday | int == today %}
+          {%- set stoptoday = stopday | int == today %}
+          
+          
+          {% if stoptoday and stophour | int > from %}
+            {% set to = stophour | int %}
+          {% else %}
+            {% set to = 24 %}
+          {% endif %}
+      
+          {%- set ns = namespace(hour_price=[]) %}
+          {%- set s = namespace(sorted=[]) %} 
+          {%- set s2 = namespace(sorted=[]) %}  
+          {%- set chosen = namespace(sorted=[]) %} 
+          {%- set chosendict = namespace(sorted=[]) %}
+          {%- set tod = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','raw_today') %}
+         
+          {% if state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true 
+          and stoptoday == False 
+          and state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow")[0]!=None %}
+          {%- set tom = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','raw_tomorrow') %}
+            {% for i in range(from, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+            {% for i in range(0, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+              'price': tom[i].value,
+              'day': tom[i].start.day
+              }] %}
+            {%- endfor -%}
+
+            {% elif (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==false) or
+             (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true and stoptoday == True) %}
+              {% for i in range(from, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+
+            {%- else -%}
+              {% for i in range(from, to) %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {%- endfor -%}
+            {% endif %}
+
+            {% for user in ns.hour_price|sort(attribute="price") %}
+              {% set s.sorted = s.sorted + [user] %}
+            {% endfor %}
+
+            {% set nr_hours = cheap_hours.number %}
+            {% if cheap_hours.number | int > s.sorted|length %}
+              {% set nr_hours = ns.hour_price|length %}
+            {% else %}
+              {% set nr_hours = cheap_hours.number | int %}
+            {% endif %}
+
+            {% for each in range(0, nr_hours) %}
+              {% set h = s.sorted[each]['hour'] %}
+              {% set d = s.sorted[each]['day'] %}
+              {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
+              {% if h == now().hour and d == now().day %}
+                {% set ns.cheapest_hour = True %}
+              {% endif %}
+              {%- if not loop.last -%}{% endif %}
+            {% endfor %}
+
+            {% set sorted = chosen.sorted|sort(attribute='hour') %}
+            {% set firstday = chosen.sorted|sort(attribute='day') %}
+            {% set first = firstday[0]['day'] %}
+
+            {% for item in range(0, sorted|length) %}
+              {% set hour = sorted[item]['hour'] %}
+              {% set day = sorted[item]['day'] %}
+              {% set price = sorted[item]['price'] %}
+              
+
+              {% if sorted[item]['day'] == first %}
+                {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+               {% else %}
+                 {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+               {% endif %} 
+            {% endfor %}
+            {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
+            {{ chosendict.sorted }}
+          
+
+

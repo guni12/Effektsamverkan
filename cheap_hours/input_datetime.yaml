@@ -1,0 +1,9 @@
+borja_ladda_demo:
+  name: Börja ladda demo
+  has_date: true
+  has_time: true
+  
+sluta_ladda_demo:
+  name: Sluta ladda demo
+  has_date: true
+  has_time: true
