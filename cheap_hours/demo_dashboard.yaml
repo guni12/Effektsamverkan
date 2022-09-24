@@ -1,0 +1,27 @@
+views:
+  - title: Home
+    cards:
+      - type: entities
+        entities:
+          - entity: input_boolean.demo
+          - entity: input_number.highest_allowed_demo_price
+      - type: entities
+        entities:
+          - entity: input_datetime.start_load_demo
+          - entity: input_datetime.stop_load_demo
+          - entity: input_number.load_demo_nr_hours
+          - entity: sensor.load_demo_between_hours
+      - type: markdown
+        content: >
+          <ha-icon icon="mdi:water-boiler"></ha-icon>
+
+          Demos valda timmar
+
+          {% set demo =
+          state_attr('sensor.load_demo_between_hours','chosen_hours') %}
+
+          {% if demo %}
+            {% for l in demo %}
+              - kl {{ l.hour }} dag: {{ l.day }} Pris: {{ l.price }} öre
+            {%- endfor %}
+          {% endif %}
