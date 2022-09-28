@@ -3,13 +3,19 @@
 #
 # This is for demo
 #
-# State: true when hour is cheap and chosen
+# State: True when hour is cheap and chosen
 #
 # Input number: Nr of hours to load, no more than max available hours can be chosen
 #
 # Input datetime: If not set, all available hours can be chosen
 #
 # Attribute: shows chosen hours
+#
+# You need to configure lines 24,25,28,135,136,139 if you change those sensors
+#
+# Line 24 and 135 is how many hours to load
+# Line 25 and 136 is when to start loading, if not set it can start from current hour
+# Line 28 and 139 is when to stop loading, if not set it can continue all available hours
 #
 - sensor:
     - name: "Load demo between hours"
@@ -25,7 +31,6 @@
           {% set from = starthour | int %}
           {% set today = now().day | int %}
           {% set ldom = states('sensor.last_day_this_month') | int %}
-
           {% if startday.startswith('0') %}
             {% set startday = startday[1:] %}
           {% endif %}
@@ -87,7 +92,6 @@
               'day': tom[i].start.day
               }] %}
             {%- endfor -%}
-
             {% elif (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==false) or
              (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true and stoptoday == True) %}
               {% for i in range(from, to) %}
@@ -96,7 +100,6 @@
               'day': tod[i].start.day
               }] %}
             {%- endfor -%}
-
             {%- else -%}
               {% for i in range(from, to) %}
                 {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
@@ -109,7 +112,6 @@
             {% for item in ns.hour_price|sort(attribute="price") %}
               {% set s.sorted = s.sorted + [item] %}
             {% endfor %}
-
             {% set nr_hours = cheap_hours.number %}
             {% if cheap_hours.number | int > s.sorted|length %}
               {% set nr_hours = ns.hour_price|length %}
@@ -118,7 +120,6 @@
             {% else %}
               {% set nr_hours = cheap_hours.number | int %}
             {% endif %}
-
             {% for each in range(0, nr_hours) %}
               {% set h = s.sorted[each]['hour'] %}
               {% set d = s.sorted[each]['day'] %}
@@ -141,7 +142,6 @@
           {% set from = starthour | int %}
           {% set today = now().day | int %}
           {% set ldom = states('sensor.last_day_this_month') | int %}
-
           {% if startday.startswith('0') %}
             {% set startday = startday[1:] %}
           {% endif %}
@@ -260,6 +260,35 @@
             {% endfor %}
             {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
             {{ chosendict.sorted }}
-          
 
 
+
+
+
+#
+# Last day of current month
+#
+- sensor:
+    - name: Last day this month
+      unique_id: last_day_this_month
+      state: >
+        {% set thismonth = now().month %}
+        {% set thisyear = now().year %}
+        {%- macro last_dayofmonth(month, year) -%}
+            {%- set daysinmonths = [31,28,31,30,31,30,31,31,30,31,30,31] -%}
+            {%- set month = month|int -%}
+            {%- set year = year|int -%}
+
+            {# Simplified leap year calculation. See https://www.mathsisfun.com/leap-years.html #}
+            {%- set isleapyear = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) -%}
+
+            {%- set monthindex = month-1 -%}
+            {%- if month == 2 and isleapyear -%}
+                {{ daysinmonths[monthindex]+1 }}
+            {%- else -%}
+                {{ daysinmonths[monthindex] }}
+            {%- endif -%}
+        {%- endmacro -%}
+
+        {% set last = last_dayofmonth(thismonth, thisyear)  %}
+        {{ last }}
