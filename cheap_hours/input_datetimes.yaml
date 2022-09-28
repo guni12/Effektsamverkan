@@ -1,9 +1,9 @@
-borja_ladda_demo:
-  name: Börja ladda demo
+start_load_demo:
+  name: BSTart load demo
   has_date: true
   has_time: true
   
-sluta_ladda_demo:
-  name: Sluta ladda demo
+stop_load_demo:
+  name: Stop load demo
   has_date: true
   has_time: true
