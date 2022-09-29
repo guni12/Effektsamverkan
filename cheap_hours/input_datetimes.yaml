@@ -1,9 +1,0 @@
-start_load_demo:
-  name: Start load demo
-  has_date: true
-  has_time: true
-  
-stop_load_demo:
-  name: Stop load demo
-  has_date: true
-  has_time: true

@@ -1,5 +1,7 @@
 views:
-  - title: Home
+  - theme: Backend-selected
+    title: Demo
+    badges: []
     cards:
       - type: entities
         entities:
@@ -7,10 +9,12 @@ views:
           - entity: input_number.highest_allowed_demo_price
       - type: entities
         entities:
-          - entity: input_datetime.start_load_demo
-          - entity: input_datetime.stop_load_demo
+          - entity: input_number.start_load_demo
+          - entity: input_number.stop_load_demo
           - entity: input_number.load_demo_nr_hours
+          - entity: input_boolean.charge_only_today
           - entity: sensor.load_demo_between_hours
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
       - type: markdown
         content: >
           <ha-icon icon="mdi:water-boiler"></ha-icon>
@@ -25,3 +29,38 @@ views:
               - kl {{ l.hour }} dag: {{ l.day }} Pris: {{ l.price }} öre
             {%- endfor %}
           {% endif %}
+      - type: markdown
+        content: |
+          **Inställningar**
+
+          Alla timmar som har fått nordpools spotpris är valbara
+          Default väljer systemet bland alla dessa
+          Det betyder att några timmar kan infalla idag och några imorgon
+
+          Begränsa vilka timmar du vill ladda genom inmatningsfälten
+          När vill du börja ladda?
+            - Ändra i fältet Start load demo
+
+          När vill du sluta ladda?
+            - Ändra i fältet Stop load demo
+
+          Hur många timmar ska du ladda?
+            - Ändra Load demo nr hours
+
+          Vill du sluta ladda idag?
+            - Aktivera knappen Charge only today
+
+          Vill du aldrig ladda om priset är för dyrt?
+            - Sätt ditt maxpris med Highest allowed demo price
+
+          Test om det fungerar...
+            - Om sensorn *Load demo between hours* är True och nuvarande nordpoolpris är under ditt inställda pris så kommer knappen *Demo* att sättas på.
+            - Du kan använda denna förlaga för din skarpa automation.
+      - type: markdown
+        content: |
+          <ha-icon icon="mdi:timelapse"></ha-icon>
+          Norpoolpriserna sorterade
+          {% set all = state_attr('sensor.sorted_and_average','hours') %}
+            {% for l in all %}
+              - {{ l.1 }} - {{ (l.0/100) | round(2) }} kr
+            {%- endfor %}

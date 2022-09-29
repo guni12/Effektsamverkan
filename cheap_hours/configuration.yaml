@@ -14,7 +14,6 @@ tts:
 automation ui: !include automations.yaml
 influxdb: !include influxdb.yaml
 input_boolean: !include input_booleans.yaml
-input_datetime: !include input_datetimes.yaml
 input_number: !include input_numbers.yaml
 scene: !include scenes.yaml
 

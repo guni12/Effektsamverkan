@@ -5,64 +5,40 @@
 #
 # State: True when hour is cheap and chosen
 #
-# Input number: Nr of hours to load, no more than max available hours can be chosen
+# input_number.load_demo_nr_hours: Nr of hours to load, no more than max available spotprice hours can be chosen
+# input_number.start_load_demo: If not set, timespan starts from current hour
+# input_number.stop_load_demo: If not set, timespan stops at last available hour
+# input_boolean.charge_only_today: If set, only hours today are included
 #
-# Input datetime: If not set, all available hours can be chosen
-#
-# Attribute: shows chosen hours
-#
-# You need to configure lines 24,25,28,135,136,139 if you change those sensors
-#
-# Line 24 and 135 is how many hours to load
-# Line 25 and 136 is when to start loading, if not set it can start from current hour
-# Line 28 and 139 is when to stop loading, if not set it can continue all available hours
+# Attribute: displays chosen hours
 #
 - sensor:
     - name: "Load demo between hours"
       unique_id: load_demo_between_hours
       state: >-
           {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')|int(0)) %}
-          {% set start = states('input_datetime.start_load_demo') %}
-          {% set starthour = start.split(' ')[1].split(':')[0] %}
-          {% set startday = start.split(' ')[0].split('-')[2] %}
-          {% set stop = states('input_datetime.stop_load_demo') %}
-          {% set stophour = stop.split(' ')[1].split(':')[0] %}
-          {% set stopday = stop.split(' ')[0].split('-')[2] %}
+          {% set starthour = states('input_number.start_load_demo') %}
+          {% set stophour = states('input_number.stop_load_demo') %}
           {% set from = starthour | int %}
           {% set today = now().day | int %}
-          {% set ldom = states('sensor.last_day_this_month') | int %}
-          {% if startday.startswith('0') %}
-            {% set startday = startday[1:] %}
-          {% endif %}
-            
-          {% if stopday.startswith('0') %}
-            {% set stopday = stopday[1:] %}
-          {% endif %}
-          
-          {% if today == ldom %}
-            {% set tomorrow = 1 %}
+          {% set ldom = states('sensor.last_day_this_month') | int %}         
+          {% set startday = today %}
+
+          {% if states('input_boolean.charge_only_today') == 'on'  %}
+            {% set stopday = today %}
           {% else %}
-            {% set tomorrow = today + 1 %}
-          {% endif %}
-          
-          {% if startday | int == tomorrow %}
-              {% set startday = startday %}
-          {% else %}
-              {% set startday = today %}
-              {% set from = now().hour %}
-          {% endif %}
-          
-          {% if stopday | int == today or stopday | int == tomorrow %}
-              {% set stopday = stopday %}
-          {% else %}
-              {% set stopday = tomorrow %}
+            {% if today == ldom %}
+              {% set stopday = 1 %}
+            {% else %}
+              {% set stopday = today + 1 %}
+            {% endif %} 
           {% endif %}
           
           {%- set starttoday = startday | int == today %}
           {%- set stoptoday = stopday | int == today %}
           
           
-          {% if stoptoday and stophour | int > from %}
+          {% if (stoptoday and stophour | int > from) or (not stoptoday) %}
             {% set to = stophour | int %}
           {% else %}
             {% set to = 24 %}
@@ -133,47 +109,28 @@
       attributes:
         chosen_hours: >-
           {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')|int(0)) %}
-          {% set start = states('input_datetime.start_load_demo') %}
-          {% set starthour = start.split(' ')[1].split(':')[0] %}
-          {% set startday = start.split(' ')[0].split('-')[2] %}
-          {% set stop = states('input_datetime.stop_load_demo') %}
-          {% set stophour = stop.split(' ')[1].split(':')[0] %}
-          {% set stopday = stop.split(' ')[0].split('-')[2] %}
+          {% set starthour = states('input_number.start_load_demo') %}
+          {% set stophour = states('input_number.stop_load_demo') %}
           {% set from = starthour | int %}
           {% set today = now().day | int %}
-          {% set ldom = states('sensor.last_day_this_month') | int %}
-          {% if startday.startswith('0') %}
-            {% set startday = startday[1:] %}
-          {% endif %}
-            
-          {% if stopday.startswith('0') %}
-            {% set stopday = stopday[1:] %}
-          {% endif %}
-          
-          {% if today == ldom %}
-            {% set tomorrow = 1 %}
+          {% set ldom = states('sensor.last_day_this_month') | int %}         
+          {% set startday = today %}
+
+          {% if states('input_boolean.charge_only_today') == 'on'  %}
+            {% set stopday = today %}
           {% else %}
-            {% set tomorrow = today + 1 %}
-          {% endif %}
-          
-          {% if startday | int == tomorrow %}
-              {% set startday = startday %}
-          {% else %}
-              {% set startday = today %}
-              {% set from = now().hour %}
-          {% endif %}
-          
-          {% if stopday | int == today or stopday | int == tomorrow %}
-              {% set stopday = stopday %}
-          {% else %}
-              {% set stopday = tomorrow %}
+            {% if today == ldom %}
+              {% set stopday = 1 %}
+            {% else %}
+              {% set stopday = today + 1 %}
+            {% endif %} 
           {% endif %}
           
           {%- set starttoday = startday | int == today %}
           {%- set stoptoday = stopday | int == today %}
           
           
-          {% if stoptoday and stophour | int > from %}
+          {% if (stoptoday and stophour | int > from) or (not stoptoday) %}
             {% set to = stophour | int %}
           {% else %}
             {% set to = 24 %}
@@ -292,3 +249,48 @@
 
         {% set last = last_dayofmonth(thismonth, thisyear)  %}
         {{ last }}
+
+
+#
+# State: visar dagens medelpris
+#
+# Attribut: Sorterade tillgängliga nordpoolpriser enligt pris med dag och tid
+#
+- sensor:
+  - name: "Sorted and average"
+    unique_id: sorted_and_average
+    state: "{{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','average') }}"
+    attributes:
+        hours: >
+          {%- set ns = namespace(hour_price=[]) %}
+          {%- set ns2 = namespace(hour_price2=[]) %}
+          {% set ldom = states('sensor.last_day_this_month') | int %}
+          
+          {% if state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true and state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow")[0]!=None %}
+            {% for i in range(now().hour, 24) %}
+              {% set when =  ' kl. ' + i| string + ' dag: ' + (now().day) | string %}
+              {% set ns.hour_price = ns.hour_price + [(when, states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.raw_today[i].value)] %}
+            {%- endfor -%}
+            {% for i in range(0, 24) %}
+              {% set tom = now().day + 1 %}
+              {% if now().day == ldom %}
+                {% set tom = 1 %}
+              {% endif %}
+              {% set when =  ' kl. ' + i| string + ' dag: ' + tom | string %}
+              {% set ns.hour_price = ns.hour_price + [(when, states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.raw_tomorrow[i].value)] %}
+            {%- endfor -%}
+
+          {% else %}
+             {% for i in range(now().hour, 24) %}
+               {% set when =  ' kl. ' + i| string + ' dag: ' + (now().day) | string %}
+              {% set ns.hour_price = ns.hour_price + [(when, states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.raw_today[i].value)] %}
+            {%- endfor -%}
+          {% endif %}
+          
+          {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
+          {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
+          {% for each in sorted_hour_price_dict %}
+          {% set ns2.hour_price2 = ns2.hour_price2 + [(each[1], each[0])] %}
+             {%- if not loop.last -%}{% endif %}
+          {% endfor %}
+          {{ ns2.hour_price2 }}
