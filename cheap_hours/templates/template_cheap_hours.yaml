@@ -38,7 +38,7 @@
           {%- set stoptoday = stopday | int == today %}
           
           
-          {% if (stoptoday and stophour | int > from) or (not stoptoday) %}
+          {% if (stoptoday and stophour | int > from) or (stoptoday == 'False') %}
             {% set to = stophour | int %}
           {% else %}
             {% set to = 24 %}
@@ -130,7 +130,7 @@
           {%- set stoptoday = stopday | int == today %}
           
           
-          {% if (stoptoday and stophour | int > from) or (not stoptoday) %}
+          {% if (stoptoday and stophour | int > from) or (stoptoday == 'False') %}
             {% set to = stophour | int %}
           {% else %}
             {% set to = 24 %}
@@ -189,33 +189,32 @@
               {% set nr_hours = cheap_hours.number | int %}
             {% endif %}
 
-            {% for each in range(0, nr_hours) %}
-              {% set h = s.sorted[each]['hour'] %}
-              {% set d = s.sorted[each]['day'] %}
-              {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
-              {% if h == now().hour and d == now().day %}
-                {% set ns.cheapest_hour = True %}
-              {% endif %}
-              {%- if not loop.last -%}{% endif %}
-            {% endfor %}
+            {% if nr_hours > 0 %}
+              {% for each in range(0, nr_hours) %}
+                {% set h = s.sorted[each]['hour'] %}
+                {% set d = s.sorted[each]['day'] %}
+                {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
+                {%- if not loop.last -%}{% endif %}
+              {% endfor %}
 
-            {% set sorted = chosen.sorted|sort(attribute='hour') %}
-            {% set firstday = chosen.sorted|sort(attribute='day') %}
-            {% set first = firstday[0]['day'] %}
+              {% set sorted = chosen.sorted|sort(attribute='hour') %}
+              {% set firstday = chosen.sorted|sort(attribute='day') %}
+              {% set first = firstday[0]['day'] %}
 
-            {% for item in range(0, sorted|length) %}
-              {% set hour = sorted[item]['hour'] %}
-              {% set day = sorted[item]['day'] %}
-              {% set price = sorted[item]['price'] %}
+              {% for item in range(0, sorted|length) %}
+                {% set hour = sorted[item]['hour'] %}
+                {% set day = sorted[item]['day'] %}
+                {% set price = sorted[item]['price'] %}
               
 
-              {% if sorted[item]['day'] == first %}
-                {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
-               {% else %}
-                 {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
-               {% endif %} 
-            {% endfor %}
-            {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
+                {% if sorted[item]['day'] == first %}
+                  {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+                 {% else %}
+                   {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+                 {% endif %} 
+              {% endfor %}
+              {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
+            {% endif %}
             {{ chosendict.sorted }}
 
 
