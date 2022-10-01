@@ -1,6 +1,6 @@
 views:
   - theme: Backend-selected
-    title: Demo
+    title: Billigt
     badges: []
     cards:
       - type: entities
@@ -31,6 +31,19 @@ views:
           {% endif %}
       - type: markdown
         content: |
+          <ha-icon icon="mdi:timelapse"></ha-icon>
+          Norpoolpriserna sorterade
+          {% set all = state_attr('sensor.sorted_and_average','hours') %}
+            {% for l in all %}
+              - {{ l.1 }} - {{ (l.0/100) | round(2) }} kr
+            {%- endfor %}
+  - theme: Backend-selected
+    title: Info
+    path: info
+    badges: []
+    cards:
+      - type: markdown
+        content: |
           **Inställningar**
 
           Alla timmar som har fått nordpools spotpris är valbara
@@ -57,10 +70,59 @@ views:
             - Om sensorn *Load demo between hours* är True och nuvarande nordpoolpris är under ditt inställda pris så kommer knappen *Demo* att sättas på.
             - Du kan använda denna förlaga för din skarpa automation.
       - type: markdown
-        content: |
-          <ha-icon icon="mdi:timelapse"></ha-icon>
-          Norpoolpriserna sorterade
-          {% set all = state_attr('sensor.sorted_and_average','hours') %}
-            {% for l in all %}
-              - {{ l.1 }} - {{ (l.0/100) | round(2) }} kr
-            {%- endfor %}
+        content: |-
+          **Varje apparat har en sensor som är true eller false** 
+          När false blir true kan en automation triggas igång.
+          Se *automation_testdemo.yaml*
+          Vi väljer hur många timmar som ska laddas.
+          **Automatik**
+          Antal timmar kan ju räknas ut om vi vet laddstatus på bilen.
+          Om vi vet när bilen ska vara klar.
+          Om vi vet om den ska bli full-laddad.
+          Eller temperatur i tanken.
+          Schema kanske kan ställas för vissa personer. Med regelbundna jobb.
+
+          **Fler förbehåll behövs**
+          Här filtrerar vi bort om priset är för högt, 
+          trots att det är lägst, genom *Highest allowed demo price*
+
+          Men om man ändå måste ladda t.ex. bilen...
+          Fler förbehåll kan sättas
+          Fantasin sätter gränserna.
+
+          **Attribut**
+          Sensorerna har attribut med info om valda timmar.
+          Klicka t.ex. på **Load demo between hours** och klicka på Attribut
+      - type: entities
+        entities:
+          - entity: sensor.sorted_and_average
+          - entity: sensor.last_day_this_month
+          - entity: automation.demo_on
+          - entity: automation.demo_off
+        title: Använda sensorer och automationer
+        show_header_toggle: false
+      - type: markdown
+        content: >-
+          <ha-icon icon="mdi:home-automation"></ha-icon>
+
+          <H2>Recently triggered automations</h2>
+
+
+          **Från
+          https://community.home-assistant.io/t/display-recently-triggered-automations/289172**
+
+          |Days|Hours|Minutes||Time||Name|
+
+          |---:|----:|----:|:--:|:---:|:--:|:----|
+
+          {% for state in states.automation
+             |selectattr('attributes.last_triggered', 'defined')
+             |selectattr('attributes.last_triggered')
+             |sort(attribute='attributes.last_triggered', reverse=true) -%}
+            {%- set t1 = state.last_changed.timestamp() | timestamp_custom('%H:%M') -%}
+            {%- set t = now() - state.attributes.last_triggered -%}
+            {%- set days = t.days if t.days > 0 else '&nbsp;' -%}
+            {%- set hrs = t.seconds//3600 %}
+            {%- set hrs = hrs if hrs > 0 else '&nbsp;' -%}
+            |{{days}}|{{hrs}}|{{(t.seconds//60)%60}}||{{t1}}||_{{state.name}}_|
+          {% endfor %}
