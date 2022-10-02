@@ -264,6 +264,10 @@
           {%- set ns = namespace(hour_price=[]) %}
           {%- set ns2 = namespace(hour_price2=[]) %}
           {% set ldom = states('sensor.last_day_this_month') | int %}
+          {% set tom = now().day + 1 %}
+          {% if now().day == ldom %}
+            {% set tom = 1 %}
+          {% endif %}
           
           {% if state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true and state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow")[0]!=None %}
             {% for i in range(now().hour, 24) %}
@@ -271,10 +275,6 @@
               {% set ns.hour_price = ns.hour_price + [(when, states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.raw_today[i].value)] %}
             {%- endfor -%}
             {% for i in range(0, 24) %}
-              {% set tom = now().day + 1 %}
-              {% if now().day == ldom %}
-                {% set tom = 1 %}
-              {% endif %}
               {% set when =  ' kl. ' + i| string + ' day: ' + tom | string %}
               {% set ns.hour_price = ns.hour_price + [(when, states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.raw_tomorrow[i].value)] %}
             {%- endfor -%}
