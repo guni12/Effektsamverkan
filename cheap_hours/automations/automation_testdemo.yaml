@@ -5,7 +5,20 @@
       entity_id: sensor.load_demo_between_hours
       from: 'False'
       to: 'True'
-  condition: "{{ states('sensor.nordpool_kwh_se3_sek_3_10_0')|float(0) < states('input_number.highest_allowed_demo_price')|float(0) }}"
+#    - platform: time_pattern
+#      minutes: "/10"
+  condition:
+    condition: and
+    conditions:
+#      - condition: numeric_state
+#        entity_id: sensor.current_phase_1
+#        below: 10
+      - condition: numeric_state
+        entity_id: sensor.nordpool_kwh_se3_sek_3_10_0
+        below: input_number.highest_allowed_demo_price
+      - condition: state
+        entity_id: sensor.load_demo_between_hours
+        state: 'True'
   action:
     - service: input_boolean.turn_on
       target:
@@ -23,3 +36,53 @@
     - service: input_boolean.turn_off
       target:
         entity_id: input_boolean.demo
+    
+       
+        
+- id: adjust_rem_demo_hours
+  alias: Adjust rem demo hours
+  trigger:
+    - platform: time_pattern
+      hours: '*'
+      minutes: '59'
+      seconds: '50'
+  condition:
+    condition: and
+    conditions:
+      - condition: state
+        entity_id: input_boolean.charge_demo_only_today
+        state: 'off'
+      - condition: state
+        entity_id:  sensor.load_demo_between_hours
+        state: 'True'
+      - condition: time
+        after: "14:00:00"
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.load_demo_nr_hours_rem
+        value: "{{ states('input_number.load_demo_nr_hours_rem') | float(0) - 1 }}"
+       
+        
+- id: adjust_rem_demo_hours_2
+  alias: Adjust rem demo hours 2
+  trigger:
+    - platform: state
+      entity_id: input_number.load_demo_nr_hours
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.load_demo_nr_hours_rem
+        value: "{{ states('input_number.load_demo_nr_hours')|float(0) }}"
+        
+        
+- id: demohour_reset
+  alias: Demohour reset
+  trigger:
+    - platform: time
+      at: '13:00:00'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.load_demo_nr_hours_rem
+        value: "{{ states('input_number.load_demo_nr_hours')|float(0) }}"

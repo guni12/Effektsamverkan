@@ -5,16 +5,15 @@ views:
     cards:
       - type: entities
         entities:
-          - entity: input_boolean.demo
-          - entity: input_number.highest_allowed_demo_price
-      - type: entities
-        entities:
           - entity: input_number.start_load_demo
           - entity: input_number.stop_load_demo
           - entity: input_number.load_demo_nr_hours
+          - entity: input_number.load_demo_nr_hours_rem
+          - entity: input_number.highest_allowed_demo_price
           - entity: input_boolean.charge_only_today
           - entity: sensor.load_demo_between_hours
           - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+          - entity: input_boolean.demo
       - type: markdown
         content: >
           <ha-icon icon="mdi:water-boiler"></ha-icon>
@@ -35,7 +34,7 @@ views:
           Norpoolpriserna sorterade
           {% set all = state_attr('sensor.sorted_and_average','hours') %}
             {% for l in all %}
-              - {{ l.1 }} - {{ (l.0/100) | round(2) }} kr
+              - {{ l.1 }} - {{ (l.0) | round(2) }} kr
             {%- endfor %}
   - theme: Backend-selected
     title: Info
@@ -43,7 +42,7 @@ views:
     badges: []
     cards:
       - type: markdown
-        content: |
+        content: |-
           **Inställningar**
 
           Alla timmar som har fått nordpools spotpris är valbara
@@ -61,19 +60,24 @@ views:
             - Ändra Load demo nr hours
 
           Vill du sluta ladda idag?
-            - Aktivera knappen Charge only today
+            - Aktivera knappen Charge demo only today
 
           Vill du aldrig ladda om priset är för dyrt?
             - Sätt ditt maxpris med Highest allowed demo price
 
-          Test om det fungerar...
-            - Om sensorn *Load demo between hours* är True och nuvarande nordpoolpris är under ditt inställda pris så kommer knappen *Demo* att sättas på.
+          Testa om det fungerar...
+            - Om sensorn *Load demo between hours* är True och nuvarande nordpoolpris är under ditt inställda pris så kommer testknappen att sättas på.
             - Du kan använda denna förlaga för din skarpa automation.
+
+          ***Load demo nr hours rem håller koll på antalet timmar över 2 dagar. 
+          Efter kl 14 räknar den ner om timmar på em/kväll är true.
+          Kl 13 återställs sensorn till det värde du valt i Load demo nr hours
+          Du ska inte ändra denna***
       - type: markdown
         content: |-
           **Varje apparat har en sensor som är true eller false** 
           När false blir true kan en automation triggas igång.
-          Se *automation_testdemo.yaml*
+          Se *automation_shelly.yaml*
           Vi väljer hur många timmar som ska laddas.
           **Automatik**
           Antal timmar kan ju räknas ut om vi vet laddstatus på bilen.
@@ -81,26 +85,28 @@ views:
           Om vi vet om den ska bli full-laddad.
           Eller temperatur i tanken.
           Schema kanske kan ställas för vissa personer. Med regelbundna jobb.
-
           **Fler förbehåll behövs**
-          Här filtrerar vi bort om priset är för högt, 
-          trots att det är lägst, genom *Highest allowed demo price*
-
+          T.ex. behöver vi filtrera bort om priset är för högt 
+          trots att det är lägst. Procent eller kr?
           Men om man ändå måste ladda t.ex. bilen...
-          Fler förbehåll kan sättas
-          Fantasin sätter gränserna.
+          Många if-satser.
+
+          **Några sensorer från HA community**
+          *binary_sensor.lowest_price_period*
+          Ovan sensor väljer de tre billigaste timmarna dels mellan
+          0 och 9 och dels mellan 9 och 17
+          *sensor.cheap_night_hour*
+          Ovan sensor väljer de tre billigaste timmarna mellan 22 och 6
+          *sensor.cheapest_3_hours*
+          Ovan sensor plockar ut dagens 3 billigaste timmar
 
           **Attribut**
-          Sensorerna har attribut med info om valda timmar.
-          Klicka t.ex. på **Load demo between hours** och klicka på Attribut
+          Flera sensorer har attribut med info om valda timmar.
+          Klicka t.ex. på **Load tank between hours** och klicka på Attribut
       - type: entities
         entities:
+          - entity: sensor.load_demo_between_hours
           - entity: sensor.sorted_and_average
-          - entity: sensor.last_day_this_month
-          - entity: automation.demo_on
-          - entity: automation.demo_off
-        title: Använda sensorer och automationer
-        show_header_toggle: false
       - type: markdown
         content: >-
           <ha-icon icon="mdi:home-automation"></ha-icon>
