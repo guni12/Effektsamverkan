@@ -16,15 +16,14 @@
     - name: "Load demo between hours"
       unique_id: load_demo_between_hours
       state: >-
-          {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')|int(0)) %}
-          {% set starthour = states('input_number.start_load_demo') %}
-          {% set stophour = states('input_number.stop_load_demo') %}
-          {% set from = starthour | int %}
-          {% set today = now().day | int %}
-          {% set ldom = states('sensor.last_day_this_month') | int %}         
+          {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')) %}
+          {% set from = states('input_number.start_load_demo') | int(0) %}
+          {% set to = states('input_number.stop_load_demo') | int(0) %}
+          {% set today = now().day | int(0) %}
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %}         
           {% set startday = today %}
 
-          {% if states('input_boolean.charge_only_today') == 'on'  %}
+          {% if states('input_boolean.charge_only_today') == 'on' or to < 13 %}
             {% set stopday = today %}
           {% else %}
             {% if today == ldom %}
@@ -34,15 +33,7 @@
             {% endif %} 
           {% endif %}
           
-          {%- set starttoday = startday | int == today %}
-          {%- set stoptoday = stopday | int == today %}
-          
-          
-          {% if (stoptoday and stophour | int > from) or (stoptoday == 'False') %}
-            {% set to = stophour | int %}
-          {% else %}
-            {% set to = 24 %}
-          {% endif %}
+          {%- set stoptoday = stopday | int(0) == today %}
           
           {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
           {%- set s = namespace(sorted=[]) %} 
@@ -56,7 +47,7 @@
           and stoptoday == False 
           and state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow")[0]!=None %}
           {%- set tom = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','raw_tomorrow') %}
-            {% for i in range(from, to) %}
+            {% for i in range(from, 24) %}
               {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
               'price': tod[i].value,
               'day': tod[i].start.day
@@ -70,6 +61,7 @@
             {%- endfor -%}
             {% elif (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==false) or
              (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true and stoptoday == True) %}
+              {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to) %}
               {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
               'price': tod[i].value,
@@ -94,7 +86,7 @@
             {% elif cheap_hours.number | int == 0 %}
               {% set nr_hours = 3 %}
             {% else %}
-              {% set nr_hours = cheap_hours.number | int %}
+              {% set nr_hours = cheap_hours.number | int(0) %}
             {% endif %}
             {% for each in range(0, nr_hours) %}
               {% set h = s.sorted[each]['hour'] %}
@@ -108,15 +100,14 @@
             {{ ns.cheapest_hour }}
       attributes:
         chosen_hours: >-
-          {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')|int(0)) %}
-          {% set starthour = states('input_number.start_load_demo') %}
-          {% set stophour = states('input_number.stop_load_demo') %}
-          {% set from = starthour | int %}
-          {% set today = now().day | int %}
-          {% set ldom = states('sensor.last_day_this_month') | int %}         
+          {% set cheap_hours = namespace(number=states('input_number.load_demo_nr_hours')) %}
+          {% set from = states('input_number.start_load_demo') | int(0) %}
+          {% set to = states('input_number.stop_load_demo') | int(0) %}
+          {% set today = now().day | int(0) %}
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %}         
           {% set startday = today %}
 
-          {% if states('input_boolean.charge_only_today') == 'on'  %}
+          {% if states('input_boolean.charge_only_today') == 'on' or to < 13 %}
             {% set stopday = today %}
           {% else %}
             {% if today == ldom %}
@@ -126,15 +117,7 @@
             {% endif %} 
           {% endif %}
           
-          {%- set starttoday = startday | int == today %}
-          {%- set stoptoday = stopday | int == today %}
-          
-          
-          {% if (stoptoday and stophour | int > from) or (stoptoday == 'False') %}
-            {% set to = stophour | int %}
-          {% else %}
-            {% set to = 24 %}
-          {% endif %}
+          {%- set stoptoday = stopday | int(0) == today %}
       
           {%- set ns = namespace(hour_price=[]) %}
           {%- set s = namespace(sorted=[]) %} 
@@ -147,7 +130,7 @@
           and stoptoday == False 
           and state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow")[0]!=None %}
           {%- set tom = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','raw_tomorrow') %}
-            {% for i in range(from, to) %}
+            {% for i in range(from, 24) %}
               {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
               'price': tod[i].value,
               'day': tod[i].start.day
@@ -162,6 +145,7 @@
 
             {% elif (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==false) or
              (state_attr("sensor.nordpool_kwh_se3_sek_3_10_0", "tomorrow_valid")==true and stoptoday == True) %}
+              {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to) %}
               {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
               'price': tod[i].value,
@@ -186,7 +170,7 @@
             {% if cheap_hours.number | int > s.sorted|length %}
               {% set nr_hours = ns.hour_price|length %}
             {% else %}
-              {% set nr_hours = cheap_hours.number | int %}
+              {% set nr_hours = cheap_hours.number | int(0) %}
             {% endif %}
 
             {% if nr_hours > 0 %}
@@ -232,8 +216,8 @@
         {% set thisyear = now().year %}
         {%- macro last_dayofmonth(month, year) -%}
             {%- set daysinmonths = [31,28,31,30,31,30,31,31,30,31,30,31] -%}
-            {%- set month = month|int -%}
-            {%- set year = year|int -%}
+            {%- set month = month|int(0) -%}
+            {%- set year = year|int(0) -%}
 
             {# Simplified leap year calculation. See https://www.mathsisfun.com/leap-years.html #}
             {%- set isleapyear = year % 4 == 0 and (year % 100 != 0 or year % 400 == 0) -%}
@@ -263,7 +247,7 @@
         hours: >
           {%- set ns = namespace(hour_price=[]) %}
           {%- set ns2 = namespace(hour_price2=[]) %}
-          {% set ldom = states('sensor.last_day_this_month') | int %}
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %}
           {% set tom = now().day + 1 %}
           {% if now().day == ldom %}
             {% set tom = 1 %}
