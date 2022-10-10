@@ -21,9 +21,10 @@
           {% set from = states('input_number.start_load_demo') | int(0) %}
           {% set to = states('input_number.stop_load_demo') | int(0) %}
           {% set today = now().day | int(0) %}
-          {% set ldom = states('sensor.last_day_this_month') | int(0) %}     
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %}  
+          {% set hour = now().hour | int(0) %}
 
-          {% if states('input_boolean.charge_only_today') == 'on' or to < 13 %}
+          {% if states('input_boolean.charge_only_today') == 'on' or hour < 13 %}   
             {% set stopday = today %}
           {% else %}
             {% if today == ldom %}
@@ -106,9 +107,10 @@
           {% set from = states('input_number.start_load_demo') | int(0) %}
           {% set to = states('input_number.stop_load_demo') | int(0) %}
           {% set today = now().day | int(0) %}
-          {% set ldom = states('sensor.last_day_this_month') | int(0) %}         
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %} 
+          {% set hour = now().hour | int(0) %}
 
-          {% if states('input_boolean.charge_only_today') == 'on' or to < 13 %}
+          {% if states('input_boolean.charge_only_today') == 'on' or hour < 13 %}        
             {% set stopday = today %}
           {% else %}
             {% if today == ldom %}
