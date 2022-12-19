@@ -21,6 +21,10 @@
 # You also want the automation to listen for when you change highest allowed price etc.
 # Play with it
 #
+# Make sure that you change the sensors id:s to the ones that you have
+# sensor.nordpool_x_x_x_x_x_x
+# sensor.your_current
+#
 ########################################################################################
 
 - id: demo_on

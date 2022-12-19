@@ -1,0 +1,39 @@
+load_vvb_nr_hours:
+    name: Load vvb nr hours
+    unit_of_measurement: "h"
+    mode: box
+    min: 0
+    max: 36
+    step: 1
+
+load_vvb_nr_hours_rem:
+    name: Load vvb nr hours rem
+    unit_of_measurement: "h"
+    mode: box
+    min: 0
+    max: 36
+    step: 1
+
+highest_allowed_vvb_price:
+    name: Highest allowed vvb price
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 9999
+    step: 1
+
+start_load_vvb:
+   name: Start load vvb
+   unit_of_measurement: "kl"
+   mode: box
+   min: 0
+   max: 23
+   step: 1
+  
+stop_load_vvb:
+   name: Stop load vvb
+   unit_of_measurement: "kl"
+   mode: box
+   min: 0
+   max: 23
+   step: 1
