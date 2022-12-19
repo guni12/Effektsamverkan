@@ -1,3 +1,5 @@
+##########################################################################################
+#
 #
 # Unique settings for each device used
 #
@@ -6,12 +8,20 @@
 # State: True when hour is cheap and chosen
 #
 # input_number.load_demo_nr_hours: Nr of hours to load, no more than max available spotprice hours can be chosen
+# input_number.load_demo_nr_hours_rem: Keeps track of nr hours over night, counts down before midnight, resets at 13:00
 # input_number.start_load_demo: If not set, timespan starts from current hour
 # input_number.stop_load_demo: If not set, timespan stops at last available hour
 # input_boolean.charge_only_today: If set, only hours today are included
 #
 # Attribute: displays chosen hours
 #
+# Make sure to update the nordpool-sensor to the one you have:
+# set np = "sensor.nordpool_kwh_x_x_x_x_x" 
+# on line 54 and 140
+#
+############################################################################################
+
+
 - sensor:
     - name: "Load demo between hours"
       unique_id: load_demo_between_hours
@@ -207,7 +217,21 @@
             {{ chosendict.sorted }}
 
 
-
+########################################################################################
+# You might want to add sensors, input numbers etc. for your device:
+#
+# sensor.load_car_between_hours
+# input_number.highest_allowed_car_price
+# input_number.load_car_nr_hours
+# input_number.load_car_nr_hours_rem
+# input_number.start_load_car
+# input_number.stop_load_car
+# input_boolean.charge_car_only_today
+# For testing: input_boolean.car_test
+#
+# Sensor above is for demo
+#
+##########################################################################################
 
 
 #

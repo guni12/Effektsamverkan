@@ -1,0 +1,205 @@
+########################################################################################################
+#
+# Include the sensor 'Last day this month' from 
+# https://github.com/guni12/Effektsamverkan/blob/main/cheap_hours/templates/template_cheap_hours.yaml
+# amongst your template-code, if you haven't done it already (only include it once)
+#
+# Make sure to update the nordpool-sensor to the one you have:
+# set np = "sensor.nordpool_kwh_x_x_x_x_x" 
+# on line 42 and 128
+#
+########################################################################################################
+
+- sensor:
+    - name: "Load vvb between hours"
+      unique_id: load_vvb_between_hours
+      state: >-
+          {% set cheap_hours = namespace(number=states('input_number.load_vvb_nr_hours')) %}
+          {% set rem = states('input_number.load_vvb_nr_hours_rem')|int(0) %} 
+          {% set from = states('input_number.start_load_vvb') | int(0) %}
+          {% set to = states('input_number.stop_load_vvb') | int(0) %}
+          {% set today = now().day | int(0) %}
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %}  
+          {% set hour = now().hour | int(0) %}
+
+          {% if states('input_boolean.charge_vvb_only_today') == 'on' or hour < 13 %}   
+            {% set stopday = today %}
+          {% else %}
+            {% if today == ldom %}
+              {% set stopday = 1 %}
+            {% else %}
+              {% set stopday = today + 1 %}
+            {% endif %} 
+          {% endif %}
+          
+          {%- set stoptoday = stopday | int(0) == today %}
+          
+          {%- set ns = namespace(hour_price=[], cheapest_hour=False) %}
+          {%- set s = namespace(sorted=[]) %} 
+          {%- set s2 = namespace(sorted=[]) %}  
+          {%- set chosen = namespace(sorted=[]) %} 
+          {%- set chosendict = namespace(sorted=[]) %}
+          {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
+          {%- set tod = state_attr(np,'raw_today') %}
+         
+          
+          {% if state_attr(np, "tomorrow_valid")==true 
+          and stoptoday == False 
+          and state_attr(np, "tomorrow")[0]!=None %}
+          {%- set tom = state_attr(np,'raw_tomorrow') %}
+            {% for i in range(from, 24) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+            {% for i in range(0, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+              'price': tom[i].value,
+              'day': tom[i].start.day
+              }] %}
+            {%- endfor -%}
+            {% elif (state_attr(np, "tomorrow_valid")==false) or
+             (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
+              {% if from > to %}{% set from = 0 %}{% endif %}
+              {% for i in range(from, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+            {%- else -%}
+              {% for i in range(from, to) %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {%- endfor -%}
+            {% endif %}
+            
+            {% for item in ns.hour_price|sort(attribute="price") %}
+              {% set s.sorted = s.sorted + [item] %}
+            {% endfor %}
+
+            {% if cheap_hours.number|int(0) > rem %}{% set cheap_hours.number = rem %}{% endif %}
+            {% set nr_hours = cheap_hours.number %}
+            {% if cheap_hours.number | int > s.sorted|length %}
+              {% set nr_hours = ns.hour_price|length %}
+            {% else %}
+              {% set nr_hours = cheap_hours.number | int(0) %}
+            {% endif %}
+            {% for each in range(0, nr_hours) %}
+              {% set h = s.sorted[each]['hour'] %}
+              {% set d = s.sorted[each]['day'] %}
+              {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
+              {% if h == now().hour and d == now().day %}
+                {% set ns.cheapest_hour = True %}
+              {% endif %}
+              {%- if not loop.last -%}{% endif %}
+            {% endfor %}
+            {{ ns.cheapest_hour }}
+      attributes:
+        chosen_hours: >-
+          {% set cheap_hours = namespace(number=states('input_number.load_vvb_nr_hours')) %}
+          {% set rem = states('input_number.load_vvb_nr_hours_rem')|int(0) %} 
+          {% set from = states('input_number.start_load_vvb') | int(0) %}
+          {% set to = states('input_number.stop_load_vvb') | int(0) %}
+          {% set today = now().day | int(0) %}
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %} 
+          {% set hour = now().hour | int(0) %}
+
+          {% if states('input_boolean.charge_vvb_only_today') == 'on' or hour < 13 %}        
+            {% set stopday = today %}
+          {% else %}
+            {% if today == ldom %}
+              {% set stopday = 1 %}
+            {% else %}
+              {% set stopday = today + 1 %}
+            {% endif %} 
+          {% endif %}
+          
+          {%- set stoptoday = stopday | int(0) == today %}
+      
+          {%- set ns = namespace(hour_price=[]) %}
+          {%- set s = namespace(sorted=[]) %} 
+          {%- set s2 = namespace(sorted=[]) %}  
+          {%- set chosen = namespace(sorted=[]) %} 
+          {%- set chosendict = namespace(sorted=[]) %}
+          {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
+          {%- set tod = state_attr(np,'raw_today') %}
+         
+          {% if state_attr(np, "tomorrow_valid")==true 
+          and stoptoday == False 
+          and state_attr(np, "tomorrow")[0]!=None %}
+          {%- set tom = state_attr(np,'raw_tomorrow') %}
+            {% for i in range(from, 24) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+            {% for i in range(0, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+              'price': tom[i].value,
+              'day': tom[i].start.day
+              }] %}
+            {%- endfor -%}
+
+            {% elif (state_attr(np, "tomorrow_valid")==false) or
+             (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
+              {% if from > to %}{% set from = 0 %}{% endif %}
+              {% for i in range(from, to) %}
+              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+              'price': tod[i].value,
+              'day': tod[i].start.day
+              }] %}
+            {%- endfor -%}
+
+            {%- else -%}
+              {% for i in range(from, to) %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {%- endfor -%}
+            {% endif %}
+
+            {% for user in ns.hour_price|sort(attribute="price") %}
+              {% set s.sorted = s.sorted + [user] %}
+            {% endfor %}
+
+            {% if cheap_hours.number|int(0) > rem %}{% set cheap_hours.number = rem %}{% endif %}
+            {% set nr_hours = cheap_hours.number %}
+            {% if cheap_hours.number | int > s.sorted|length %}
+              {% set nr_hours = ns.hour_price|length %}
+            {% else %}
+              {% set nr_hours = cheap_hours.number | int(0) %}
+            {% endif %}
+
+            {% if nr_hours > 0 %}
+              {% for each in range(0, nr_hours) %}
+                {% set h = s.sorted[each]['hour'] %}
+                {% set d = s.sorted[each]['day'] %}
+                {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
+                {%- if not loop.last -%}{% endif %}
+              {% endfor %}
+
+              {% set sorted = chosen.sorted|sort(attribute='hour') %}
+              {% set firstday = chosen.sorted|sort(attribute='day') %}
+              {% set first = firstday[0]['day'] %}
+
+              {% for item in range(0, sorted|length) %}
+                {% set hour = sorted[item]['hour'] %}
+                {% set day = sorted[item]['day'] %}
+                {% set price = sorted[item]['price'] %}
+              
+
+                {% if sorted[item]['day'] == first %}
+                  {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+                 {% else %}
+                   {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+                 {% endif %} 
+              {% endfor %}
+              {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
+            {% endif %}
+            {{ chosendict.sorted }}
