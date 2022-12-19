@@ -1,0 +1,204 @@
+views:
+  - theme: Backend-selected
+    title: Billigt
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - entity: input_number.start_load_vvb
+          - entity: input_number.stop_load_vvb
+          - entity: input_number.load_vvb_nr_hours
+          - entity: input_number.highest_allowed_vvb_price
+          - entity: input_boolean.charge_vvb_only_today
+          - entity: sensor.load_vvb_between_hours
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+          - entity: input_number.load_vvb_nr_hours_rem
+          - entity: switch.wiz_socket_98f3e5
+          - entity: sensor.wizvvb
+          - entity: input_boolean.test_vvb
+      - type: custom:apexcharts-card
+        graph_span: 48h
+        span:
+          start: day
+          offset: +0H
+        header:
+          title: Elpris med timspotavtal + påslag GEAB
+          show: true
+          show_states: false
+          colorize_states: true
+        hours_12: false
+        stacked: false
+        experimental:
+          color_threshold: true
+        all_series_config:
+          show:
+            legend_value: false
+            datalabels: false
+            extremas: true
+            in_brush: true
+          float_precision: 3
+          invert: false
+          fill_raw: last
+          color_threshold:
+            - value: -100
+              color: 1E90FF
+            - value: 250
+              color: '008000'
+            - value: 350
+              color: DAA520
+            - value: 450
+              color: FF0000
+        now:
+          show: true
+          label: Nu
+          color: red
+        series:
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Idag
+            opacity: 0.3
+            extend_to: false
+            offset: +0h
+            type: area
+            stroke_width: 0.5
+            curve: stepline
+            data_generator: |
+
+              return entity.attributes.raw_today.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_today[index]["value"]];
+
+              });
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Imorgon
+            opacity: 0.3
+            type: area
+            stroke_width: 0.5
+            curve: stepline
+            data_generator: |
+              return entity.attributes.raw_tomorrow.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), entity.attributes.raw_tomorrow[index]["value"]];
+
+              });
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Med avgifter
+            opacity: 1
+            extend_to: false
+            offset: +0h
+            type: line
+            stroke_width: 2
+            curve: smooth
+            data_generator: |
+
+              return entity.attributes.raw_today.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), (entity.attributes.raw_today[index]["value"] * 1.25) +(60 + 45 + 7.5)];
+
+              });
+          - entity: sensor.nordpool_kwh_se3_sek_3_10_0
+            name: Med avgifter
+            opacity: 1
+            extend_to: false
+            offset: +0h
+            type: line
+            stroke_width: 2
+            curve: smooth
+            data_generator: |
+
+              return entity.attributes.raw_tomorrow.map((start, index) => {
+
+                return [new Date(start["start"]).getTime(), (entity.attributes.raw_tomorrow[index]["value"] * 1.25) +(60 + 45 + 7.5)];
+
+              });
+        apex_config:
+          chart:
+            height: 400px
+            animations:
+              enabled: true
+              easing: easeinout
+              speed: 800
+              animateGradually:
+                enabled: true
+                delay: 150
+            zoom:
+              enabled: true
+              type: x
+              autoScaleYaxis: true
+              zoomedArea:
+                fill:
+                  color: '#90CAF9'
+                  opacity: 0.4
+                stroke:
+                  color: '#0D47A1'
+                  opacity: 0.4
+                  width: 1
+          legend:
+            show: false
+            floating: true
+            offsetY: 25
+          yaxis:
+            opposite: false
+            reversed: false
+            logarithmic: false
+            decimalsInFloat: 2
+            labels:
+              show: true
+            tooltip:
+              enabled: true
+            crosshairs:
+              show: true
+          xaxis:
+            labels:
+              show: true
+              rotate: -45
+              rotateAlways: true
+            logarithmic: true
+          stroke:
+            show: true
+            dashArray:
+              - 0
+              - 0
+              - 2
+              - 2
+          plotOptions:
+            candlestick:
+              colors:
+                upward: '#00B746'
+                downward: '#EF403C'
+              wick:
+                useFillColor: true
+          markers:
+            size:
+              - 2
+              - 1
+              - 0
+              - 0
+          grid:
+            show: true
+            strokeDashArray: 1
+            position: front
+            xaxis:
+              lines:
+                show: true
+      - type: markdown
+        content: >
+          <ha-icon icon="mdi:switch"></ha-icon>
+
+          VVB valda timmar
+
+          {% set tank =
+          state_attr('sensor.load_vvb_between_hours','chosen_hours') %}
+
+          {% if tank %}
+            {% for l in tank %}
+              - kl {{ l.hour }} dag: {{ l.day }} Pris: {{ l.price }} öre
+            {%- endfor %}
+          {% endif %}
+      - type: markdown
+        content: |
+          <ha-icon icon="mdi:timelapse"></ha-icon>
+          Nordpoolpriserna sorterade
+          {% set all = state_attr('sensor.sorted_and_average','hours') %}
+            {% for l in all %}
+              - {{ l.1 }} - {{ (l.0 / 100) | round(2) }} kr
+            {%- endfor %} 

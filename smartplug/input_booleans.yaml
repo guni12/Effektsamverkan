@@ -1,5 +1,5 @@
-vvb_test:
-  name: VVB test
+test_vvb:
+  name: Test VVB
 
 charge_vvb_only_today:
   name: Charge VVB only today

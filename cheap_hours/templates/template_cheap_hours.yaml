@@ -227,7 +227,7 @@
 # input_number.start_load_car
 # input_number.stop_load_car
 # input_boolean.charge_car_only_today
-# For testing: input_boolean.car_test
+# For testing: input_boolean.test_car
 #
 # Sensor above is for demo
 #
