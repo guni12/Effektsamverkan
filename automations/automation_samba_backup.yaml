@@ -1,0 +1,35 @@
+- id: samba_backup_notifications
+  alias: Samba Backup Notifications
+  trigger:
+    platform: state
+    entity_id: sensor.samba_backup
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.samba_backup
+      state: IDLE
+  action:
+  - service: notify.notify
+    data_template:
+      title: '*Information*'
+      message: "Samba backup {{ states('sensor.samba_backup')|lower }}."
+  - service: logbook.log
+    data_template:
+      name: Samba Backup
+      message: "{{ states('sensor.samba_backup')|lower }}"
+      
+- id: restore_samba_backup
+  alias: Restore Samba Backup sensor on startup
+  trigger:
+  - event: start
+    platform: homeassistant
+  action:
+  - service: hassio.addon_stdin
+    data:
+      addon: 15d21743_samba_backup
+      input: restore-sensor
+  - service: hassio.addon_stdin
+    data:
+      addon: 15d21743_samba_backup
+      input: reset-counter
