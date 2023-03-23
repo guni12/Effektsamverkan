@@ -9,7 +9,7 @@ views:
           - entity: input_number.stop_load_vvb
           - entity: input_number.load_vvb_nr_hours
           - entity: input_number.highest_allowed_vvb_price
-          - entity: input_boolean.charge_vvb_only_today
+          - entity: input_boolean.load_vvb_only_today
           - entity: sensor.load_vvb_between_hours
           - entity: sensor.nordpool_kwh_se3_sek_3_10_0
           - entity: input_number.load_vvb_nr_hours_rem
