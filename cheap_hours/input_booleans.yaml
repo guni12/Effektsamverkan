@@ -1,5 +1,5 @@
 demo:
   name: Demo
 
-charge_only_today:
+charge_demo_only_today:
   name: Charge only today
