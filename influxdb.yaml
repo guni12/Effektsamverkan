@@ -11,6 +11,7 @@ include:
       - sensor
       - input_number
       - input_boolean
+      - switch
 exclude:
   domains:
     - automation
@@ -23,7 +24,6 @@ exclude:
     - person
     - remote
     - script
-    - switch
     - update
     - zone
   entity_globs:
