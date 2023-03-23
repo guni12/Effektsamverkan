@@ -44,8 +44,8 @@ views:
           Det betyder att några timmar kan infalla idag och några imorgon
           Begränsa vilka timmar du vill ladda genom inmatningsfälten
 
-
             - *När vill du börja ladda?* Ändra i fältet Start load demo
+
             - *När vill du sluta ladda?* Ändra i fältet Stop load demo
 
             - *Hur många timmar ska du ladda?* Ändra Load demo nr hours
