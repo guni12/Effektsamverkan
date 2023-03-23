@@ -271,7 +271,7 @@
 - sensor:
   - name: "Sorted and average"
     unique_id: sorted_and_average
-    state: "{{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','average') }}"
+    state: "{{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','average') | round(4) }}"
     attributes:
         hours: >
           {%- set ns = namespace(hour_price=[]) %}

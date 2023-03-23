@@ -2,4 +2,4 @@ demo:
   name: Demo
 
 load_demo_only_today:
-  name: Load only today
+  name: Load demo only today
