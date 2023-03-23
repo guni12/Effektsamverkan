@@ -10,7 +10,7 @@
 # input_number.start_load_car
 # input_number.stop_load_car
 # input_number.load_car_nr_hours_rem
-# input_boolean.charge_car_only_today
+# input_boolean.load_car_only_today
 # For testing: input_boolean.test_car
 #
 # These automations triggers when state goes from False to True and the opposite
@@ -112,7 +112,7 @@
     condition: and
     conditions:
       - condition: state
-        entity_id: input_boolean.charge_demo_only_today
+        entity_id: input_boolean.load_demo_only_today
         state: 'off'
       - condition: state
         entity_id:  sensor.load_demo_between_hours

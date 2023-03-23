@@ -10,7 +10,7 @@ views:
           - entity: input_number.load_demo_nr_hours
           - entity: input_number.load_demo_nr_hours_rem
           - entity: input_number.highest_allowed_demo_price
-          - entity: input_boolean.charge_only_today
+          - entity: input_boolean.load_only_today
           - entity: sensor.load_demo_between_hours
           - entity: sensor.nordpool_kwh_se3_sek_3_10_0
           - entity: input_boolean.demo
@@ -60,7 +60,7 @@ views:
             - Ändra Load demo nr hours
 
           Vill du sluta ladda idag?
-            - Aktivera knappen Charge demo only today
+            - Aktivera knappen CLoad demo only today
 
           Vill du aldrig ladda om priset är för dyrt?
             - Sätt ditt maxpris med Highest allowed demo price
