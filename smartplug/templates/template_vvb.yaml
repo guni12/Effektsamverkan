@@ -22,7 +22,7 @@
           {% set ldom = states('sensor.last_day_this_month') | int(0) %}  
           {% set hour = now().hour | int(0) %}
 
-          {% if states('input_boolean.charge_vvb_only_today') == 'on' or hour < 13 %}   
+          {% if states('input_boolean.load_vvb_only_today') == 'on' or hour < 13 %}   
             {% set stopday = today %}
           {% else %}
             {% if today == ldom %}
@@ -41,39 +41,48 @@
           {%- set chosendict = namespace(sorted=[]) %}
           {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
           {%- set tod = state_attr(np,'raw_today') %}
+          {%- set tom = state_attr(np,'raw_tomorrow') %}
          
           
           {% if state_attr(np, "tomorrow_valid")==true 
           and stoptoday == False 
           and state_attr(np, "tomorrow")[0]!=None %}
-          {%- set tom = state_attr(np,'raw_tomorrow') %}
+
             {% for i in range(from, 24) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
+              {% if tod[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
             {% for i in range(0, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
-              'price': tom[i].value,
-              'day': tom[i].start.day
-              }] %}
+              {% if tom[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+                'price': tom[i].value,
+                'day': tom[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
             {% elif (state_attr(np, "tomorrow_valid")==false) or
              (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
               {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
-            {%- endfor -%}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day
+                  }] %}
+                {% endif %}
+              {%- endfor -%}
             {%- else -%}
               {% for i in range(from, to) %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
-                }] %}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day
+                  }] %}
+                {% endif %}
               {%- endfor -%}
             {% endif %}
             
@@ -108,7 +117,7 @@
           {% set ldom = states('sensor.last_day_this_month') | int(0) %} 
           {% set hour = now().hour | int(0) %}
 
-          {% if states('input_boolean.charge_vvb_only_today') == 'on' or hour < 13 %}        
+          {% if states('input_boolean.load_vvb_only_today') == 'on' or hour < 13 %}        
             {% set stopday = today %}
           {% else %}
             {% if today == ldom %}
@@ -127,40 +136,49 @@
           {%- set chosendict = namespace(sorted=[]) %}
           {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
           {%- set tod = state_attr(np,'raw_today') %}
+          {%- set tom = state_attr(np,'raw_tomorrow') %}
          
           {% if state_attr(np, "tomorrow_valid")==true 
           and stoptoday == False 
           and state_attr(np, "tomorrow")[0]!=None %}
-          {%- set tom = state_attr(np,'raw_tomorrow') %}
+
             {% for i in range(from, 24) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
+              {% if tod[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
             {% for i in range(0, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
-              'price': tom[i].value,
-              'day': tom[i].start.day
-              }] %}
+              {% if tom[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+                'price': tom[i].value,
+                'day': tom[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
 
             {% elif (state_attr(np, "tomorrow_valid")==false) or
              (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
               {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
 
             {%- else -%}
               {% for i in range(from, to) %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
-                }] %}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day
+                  }] %}
+                {% endif %}
               {%- endfor -%}
             {% endif %}
 

@@ -53,39 +53,47 @@
           {%- set chosendict = namespace(sorted=[]) %}
           {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
           {%- set tod = state_attr(np,'raw_today') %}
+          {%- set tom = state_attr(np,'raw_tomorrow') %}
          
           
           {% if state_attr(np, "tomorrow_valid")==true 
           and stoptoday == False 
-          and state_attr(np, "tomorrow")[0]!=None %}
-          {%- set tom = state_attr(np,'raw_tomorrow') %}
+          and state_attr(np, "tomorrow")[0]!=None %}          
             {% for i in range(from, 24) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
+              {% if tod[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
             {% for i in range(0, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
-              'price': tom[i].value,
-              'day': tom[i].start.day
-              }] %}
+              {% if tom[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+                'price': tom[i].value,
+                'day': tom[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
             {% elif (state_attr(np, "tomorrow_valid")==false) or
              (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
               {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
-            {%- endfor -%}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                    'price': tod[i].value,
+                    'day': tod[i].start.day
+                  }] %}
+                {% endif %}
+              {%- endfor -%}
             {%- else -%}
               {% for i in range(from, to) %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
-                }] %}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day
+                  }] %}
+                {% endif %}
               {%- endfor -%}
             {% endif %}
             
@@ -139,33 +147,39 @@
           {%- set chosendict = namespace(sorted=[]) %}
           {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
           {%- set tod = state_attr(np,'raw_today') %}
+          {%- set tom = state_attr(np,'raw_tomorrow') %}
          
           {% if state_attr(np, "tomorrow_valid")==true 
           and stoptoday == False 
-          and state_attr(np, "tomorrow")[0]!=None %}
-          {%- set tom = state_attr(np,'raw_tomorrow') %}
+          and state_attr(np, "tomorrow")[0]!=None %}         
             {% for i in range(from, 24) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
+              {% if tod[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
             {% for i in range(0, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
-              'price': tom[i].value,
-              'day': tom[i].start.day
-              }] %}
+              {% if tom[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
+                'price': tom[i].value,
+                'day': tom[i].start.day
+                }] %}
+              {% endif %}
             {%- endfor -%}
 
             {% elif (state_attr(np, "tomorrow_valid")==false) or
-             (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
+              (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
               {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to) %}
-              {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-              'price': tod[i].value,
-              'day': tod[i].start.day
-              }] %}
-            {%- endfor -%}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day
+                  }] %}
+                {% endif %}
+              {%- endfor -%}
 
             {%- else -%}
               {% for i in range(from, to) %}
@@ -288,7 +302,7 @@
             {% for i in range(now().hour, 24) %}
               {% if state_attr(np, "raw_tomorrow")[i].value != None %}
                 {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
-                {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_today")[i].value)] %}
+                {% set ns.hour_price = ns.hour_price + [(when, tod[i].value)] %}
               {% endif %}
             {%- endfor -%}
             {% for i in range(0, 24) %}
@@ -300,9 +314,9 @@
 
           {% else %}
             {% for i in range(now().hour, 24) %}
-              {% if state_attr(np, "raw_today")[i].value != None %}
+              {% if tod[i].value != None %}
                 {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
-                {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_today")[i].value)] %}
+                {% set ns.hour_price = ns.hour_price + [(when, tod[i].value)] %}
               {% endif %}
             {%- endfor -%}
           {% endif %}
