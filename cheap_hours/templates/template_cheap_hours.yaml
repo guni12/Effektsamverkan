@@ -286,18 +286,24 @@
           
           {% if state_attr(np, "tomorrow_valid")==true and state_attr(np, "tomorrow")[0]!=None %}
             {% for i in range(now().hour, 24) %}
-              {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
-              {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_today")[i].value)] %}
+              {% if state_attr(np, "raw_tomorrow")[i].value != None %}
+                {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
+                {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_today")[i].value)] %}
+              {% endif %}
             {%- endfor -%}
             {% for i in range(0, 24) %}
-              {% set when =  ' kl. ' + i| string + ' day: ' + tom | string %}
-              {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_tomorrow")[i].value)] %}
+              {% if state_attr(np, "raw_tomorrow")[i].value != None %}
+                {% set when =  ' kl. ' + i| string + ' day: ' + tom | string %}
+                {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_tomorrow")[i].value)] %}
+              {% endif %}
             {%- endfor -%}
 
           {% else %}
-             {% for i in range(now().hour, 24) %}
-               {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
-              {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_today")[i].value)] %}
+            {% for i in range(now().hour, 24) %}
+              {% if state_attr(np, "raw_today")[i].value != None %}
+                {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
+                {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_today")[i].value)] %}
+              {% endif %}
             {%- endfor -%}
           {% endif %}
           
