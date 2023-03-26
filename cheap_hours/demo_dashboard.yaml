@@ -19,8 +19,9 @@ views:
           <ha-icon icon="mdi:water-boiler"></ha-icon> Demos valda timmar {% set
           demo = state_attr('sensor.load_demo_between_hours','chosen_hours') %}
           {% if demo %}
+          {% set m = now().month %}
             {% for l in demo %}
-              - kl {{ l.hour }} dag: {{ l.day }} Pris: {{ l.price }} öre
+              - kl.{{ l.hour }} {{ l.day }}/{{ m }} Pris: {{ l.price }} öre
             {%- endfor %}
           {% endif %}
       - type: markdown

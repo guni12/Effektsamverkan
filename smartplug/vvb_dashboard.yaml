@@ -188,10 +188,11 @@ views:
 
           {% set tank =
           state_attr('sensor.load_vvb_between_hours','chosen_hours') %}
+          {% set m = now().month %}
 
           {% if tank %}
             {% for l in tank %}
-              - kl {{ l.hour }} dag: {{ l.day }} Pris: {{ l.price }} öre
+              - kl.{{ l.hour }} {{ l.day }}/{{ m }} Pris: {{ l.price }} öre
             {%- endfor %}
           {% endif %}
       - type: markdown
