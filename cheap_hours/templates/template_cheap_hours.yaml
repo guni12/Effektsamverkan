@@ -183,10 +183,12 @@
 
             {%- else -%}
               {% for i in range(from, to) %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
-                }] %}
+                {% if tod[i].value != None %}
+                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day
+                  }] %}
+                {% endif %}
               {%- endfor -%}
             {% endif %}
 
