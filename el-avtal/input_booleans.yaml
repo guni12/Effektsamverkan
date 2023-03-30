@@ -1,0 +1,23 @@
+enkeltariff:
+  name: Enkeltariff
+
+fast_elavtal:
+  name: Fast elavtal
+
+har_solceller:
+  name: Har solceller
+
+rorligt_elavtal:
+  name: Rörligt elavtal
+
+tidstariff:
+  name: Tidstariff
+
+timspotprisavtal:
+  name: Timspotprisavtal
+
+timspot_solavtal:
+  name: Timspot solavtal
+
+vald_tariff:
+  name: Vald tariff

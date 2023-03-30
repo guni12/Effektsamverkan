@@ -1,0 +1,794 @@
+title: El-avtal
+views:
+  - theme: Backend-selected
+    path: default_view
+    title: Näthandel inkl moms
+    badges: []
+    cards:
+      - type: markdown
+        content: |-
+          **Kostnader**
+          Priserna gäller Gotland 2023. Ändra till aktuella priser.
+
+          **Tariff**
+          Aktivera den tariff som gäller för dig.
+
+          **Fast årsavgift**
+          Om du t.ex. har 16A säkring på Gotland, fyll i 4945.
+
+          **Sol**
+          Aktivera knappen om du har solceller. För närvarande är 
+          ersättningen från GEAB 8 öre per kWh.
+      - type: vertical-stack
+        cards:
+          - type: picture
+            image: local/img/sakring23.png
+            tap_action:
+              action: none
+            hold_action:
+              action: none
+      - type: picture
+        image: local/img/tidstariff23.png
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Abonnemangsavgift
+            entities:
+              - entity: input_number.elabonnemang_per_ar
+              - type: custom:template-entity-row
+                name: Årsavgiften kostar per dag
+                icon: mdi:panda
+                state: >-
+                  {{ ((states('input_number.elabonnemang_per_ar') | float(0) ) /
+                  365.25) |round(2) }} kr
+      - type: entities
+        entities:
+          - entity: input_boolean.tidstariff
+          - entity: input_number.eltariff_hoglast
+          - entity: input_number.eltariff_laglast
+        title: Tidstariff nät
+      - type: entity
+        entity: sensor.vald_tariff
+      - type: picture
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+        image: local/img/skattesats23.png
+      - type: entities
+        entities:
+          - entity: input_number.elskatt
+        show_header_toggle: false
+        title: Elskatt utan moms
+      - type: entities
+        entities:
+          - entity: input_boolean.enkeltariff
+          - entity: input_number.enkeltariff
+        show_header_toggle: false
+        title: Enkeltariff
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Energiskatt på el
+            entities:
+              - type: custom:template-entity-row
+                name: skatt
+                icon: mdi:panda
+                state: '{{ states("input_number.elskatt") }} öre/kWh'
+              - type: custom:template-entity-row
+                name: moms
+                icon: mdi:panda
+                state: >-
+                  {{ (states('input_number.elskatt') | float(0) * 0.25) }}
+                  öre/kWh
+              - type: custom:template-entity-row
+                name: skatt inkl moms
+                icon: mdi:panda
+                state: '{{ states(''sensor.skatt_med_moms'') | float(0) }} öre/kWh'
+      - type: picture
+        image: local/img/solprivat23.png
+        tap_action:
+          action: none
+        hold_action:
+          action: none
+      - type: entities
+        entities:
+          - entity: input_boolean.har_solceller
+          - entity: input_number.energiersattning
+        show_header_toggle: false
+        title: Har solceller
+  - theme: Backend-selected
+    title: Elhandel inkl moms
+    path: forsaljning-inkl-moms
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Årsavgift
+            entities:
+              - entity: input_number.elforsaljning_per_ar
+              - type: custom:template-entity-row
+                name: Årsavgiften kostar per dag
+                icon: mdi:panda
+                state: >-
+                  {{ ((states('input_number.elforsaljning_per_ar') | float(0) )
+                  / 365.25) |round(2) }} kr
+      - type: markdown
+        content: |-
+          **Elhandel**
+          Denna flik är krångligast
+          Ni kan ha *antingen* 
+          **fast** pris eller **rörligt** eller **timpris**
+          Klicka i en av dem
+          Några har en årsavgift, andra inte
+
+          **Timpris**
+          Timpriset bygger på Nordpools spotpris
+          Om man köper per timma kan påslaget variera från ingenting
+          *(I så fall har man istället en års/månadsavgift)*
+          till några ören
+
+          **Rörligt pris**
+          Det rörliga avtalet blir en uppskattning eftersom man 
+          får sin räkning när månaden har gått.
+          Fyll i det som gällde senaste månaden och kolla ibland 
+          om det ändrar sig mycket.
+
+          **Priserna inkluderar moms**
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Fast elavtal
+            entities:
+              - entity: input_boolean.fast_elavtal
+              - entity: input_number.pris_fast
+              - entity: input_number.paslag_fast
+      - type: entity
+        entity: sensor.nordpool_kwh_se3_sek_3_10_0
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Timprisavtal (försäljning)
+            entities:
+              - entity: input_boolean.timspotprisavtal
+              - entity: input_number.paslag_spot
+              - type: custom:template-entity-row
+                name: Timspotpriset med moms
+                icon: mdi:panda
+                state: >-
+                  {{ (states('sensor.nordpool_kwh_se3_sek_3_10_0') | float(0) *
+                  1.25 )  |round(2) }} kr/kWh
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Rörligt elavtal (månaden innan)
+            entities:
+              - entity: input_boolean.rorligt_elavtal
+              - entity: input_number.pris_rorligt
+              - entity: input_number.paslag_rorligt
+      - type: entity
+        entity: sensor.valt_elavtal_inkl_moms_och_paslag
+  - theme: Backend-selected
+    title: Solersättning
+    path: solersattning
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - entity: sensor.ditt_solavtal_plus_natersattning
+            name: Nordpool (m påslag) plus nätersättning
+          - entity: sensor.betalt_for_solel_denna_timma
+          - entity: sensor.skattereduktion
+          - entity: sensor.s_energi
+            name: Solel till nätet
+        title: Din ersättning för sol-elen
+      - type: entities
+        entities:
+          - entity: input_boolean.timspot_solavtal
+          - entity: input_number.ersattning_solel_spot
+        title: Ersättning vid timspot solavtal
+      - type: entities
+        entities:
+          - input_number.skattereduktion
+  - theme: Backend-selected
+    title: Priser
+    path: priser
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - input_number.uppskattat_rorligt
+      - type: vertical-stack
+        title: Uppskattat rörligt pris - jämför
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 3/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "";
+                  ]]]
+                label: |
+                  [[[ 
+                      return "";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 3/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "Valt elavtal";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 3/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "Spot";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 3/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "Uppskattat";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "Timpris";
+                  ]]]
+                label: |
+                  [[[ 
+                      return "moms,påslag";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+              - type: custom:button-card
+                entity: sensor.valt_elavtal_inkl_moms_och_paslag
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: true
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                  name:
+                    - color: green
+                name: |
+                  [[[ 
+                      return entity.state;
+                  ]]]
+                label: |
+                  [[[ 
+                      return "öre/kWh";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.timspotprisavtal
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                  name:
+                    - color: green
+                name: |
+                  [[[ 
+                      return entity.state;
+                  ]]]
+                label: |
+                  [[[ 
+                      return "öre/kWh";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.uppskattat_rorligt_vinterpris
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                  name:
+                    - color: green
+                name: |
+                  [[[ 
+                      return entity.state;
+                  ]]]
+                label: |
+                  [[[ 
+                      return "öre/kWh";
+                  ]]]
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "Timpris";
+                  ]]]
+                label: |
+                  [[[ 
+                      return "tariff, skatt";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+              - type: custom:button-card
+                entity: sensor.elkostnad_totalt
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: true
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                  name:
+                    - color: green
+                name: |
+                  [[[ 
+                      return entity.state;
+                  ]]]
+                label: |
+                  [[[ 
+                      return "öre/kWh";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.elspotpris_denna_timma
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                  name:
+                    - color: green
+                name: |
+                  [[[ 
+                      return entity.state;
+                  ]]]
+                label: |
+                  [[[ 
+                      return "öre/kWh";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.uppskattat_rorligt_vinterpris_med_tariff
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                  name:
+                    - color: green
+                name: |
+                  [[[ 
+                      return entity.state;
+                  ]]]
+                label: |
+                  [[[ 
+                      return "öre/kWh";
+                  ]]]
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "Denna timmes";
+                  ]]]
+                label: |
+                  [[[ 
+                      return "kostnad hittills";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+              - type: custom:button-card
+                entity: sensor.elkostnad_denna_timma
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                label: |
+                  [[[ 
+                      return ((entity.state)/100).toFixed(2) + " kr";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.elkostnad_spot_denna_timma
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                label: |
+                  [[[ 
+                      return ((entity.state)/100).toFixed(2) + " kr";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.uppskattat_rorligt_denna_timma
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                label: |
+                  [[[ 
+                      return ((entity.state)/100).toFixed(2) + " kr";
+                  ]]]
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                show_label: true
+                aspect_ratio: 2/1
+                show_name: true
+                show_icon: false
+                name: |
+                  [[[
+                    return "Timkostnad";
+                  ]]]
+                label: |
+                  [[[ 
+                      return "plus årsavg";
+                  ]]]
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - font-weight: 500
+                  name:
+                    - font-weight: 500
+              - type: custom:button-card
+                entity: sensor.elkostnad_denna_timma_tot
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                label: |
+                  [[[ 
+                      return ((entity.state)/100).toFixed(2) + " kr";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.elkostnad_spot_denna_timma_tot
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                label: |
+                  [[[ 
+                      return ((entity.state)/100).toFixed(2) + " kr";
+                  ]]]
+              - type: custom:button-card
+                entity: sensor.uppskattat_rorligt_denna_timma_tot
+                show_label: true
+                show_icon: false
+                aspect_ratio: 2/1
+                show_name: false
+                styles:
+                  grid:
+                    - grid-template-areas: '"n" "l"'
+                    - grid-template-columns: 1fr
+                    - grid-template-rows: 1fr 1fr
+                  label:
+                    - color: green
+                label: |
+                  [[[ 
+                      return ((entity.state)/100).toFixed(2) + " kr";
+                  ]]]
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Kostnader
+            entities:
+              - type: custom:template-entity-row
+                name: 1. Årsavgiften elhandel kostar per dag
+                icon: mdi:panda
+                state: >-
+                  {{ ((states('input_number.elforsaljning_per_ar') | float(0) )
+                  / 365.25) |round(2) }} kr
+              - type: custom:template-entity-row
+                name: 2. Årsavgiften näthandel kostar per dag
+                icon: mdi:panda
+                state: >-
+                  {{ ((states('input_number.elabonnemang_per_ar') | float(0) ) /
+                  365.25) |round(2) }} kr
+              - type: custom:template-entity-row
+                name: Fasta avgifter (1 + 2) per dag
+                icon: mdi:panda
+                state: '{{ states(''sensor.arsavgift_per_dag'') }} kr'
+              - type: custom:template-entity-row
+                name: Tariff-avgiften kostar per kWh
+                icon: mdi:panda
+                state: >-
+                  {{ states('sensor.vald_tariff') | float(0) |round(2) }}
+                  öre/kWh
+              - type: custom:template-entity-row
+                name: Ditt valda elavtal inkl moms och påslag
+                icon: mdi:panda
+                state: >-
+                  {{ states('sensor.valt_elavtal_inkl_moms_och_paslag') |
+                  float(0) |round(2) }} öre/kWh
+              - type: custom:template-entity-row
+                name: Energiskatten
+                icon: mdi:panda
+                state: |
+                  {{ states('sensor.skatt_med_moms') }} öre/kWh
+              - type: custom:template-entity-row
+                name: Årsavgifter (1 + 2) per timma
+                icon: mdi:panda
+                state: >-
+                  {{ (states('sensor.arsavgift_per_dag')|float(0)/24)
+                  |round(2)}} kr
+              - type: custom:template-entity-row
+                name: Denna timmens elanvändning hittills
+                icon: mdi:panda
+                state: '{{ states(''sensor.t_energi'') }} kWh'
+              - type: custom:template-entity-row
+                name: Dagskostnad igår (inkl årsavgifter)
+                icon: mdi:panda
+                state: >-
+                  {{ (states('input_number.cost_yesterday') | float(0) / 100) |
+                  round(2) }} kr
+              - type: custom:template-entity-row
+                name: Kostnad idag hittills (utan årsavgifter)
+                icon: mdi:panda
+                state: >-
+                  {{ (states('input_number.dailyenergycost') | float(0) / 100) |
+                  round(2) }} kr
+              - entity: sensor.elkostnad_denna_timma_tot
+                name: Elkostnad denna timme inkl del årsavg
+              - entity: sensor.elkostnad_denna_timma
+              - entity: sensor.t_energi
+                name: Använd el denna timma
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Med solpaneler
+            entities:
+              - type: custom:template-entity-row
+                name: Ditt solavtal
+                icon: mdi:panda
+                state: >-
+                  {{ states('sensor.ditt_solavtal_plus_natersattning') |
+                  float(0) }} öre
+              - entity: sensor.s_energi
+                name: Såld el denna timme
+              - type: custom:template-entity-row
+                name: Ersättning denna timma (inkl reduktion)
+                icon: mdi:panda
+                state: >-
+                  {{ states('sensor.betalt_for_solel_denna_timma') | float(0) }}
+                  öre
+              - type: custom:template-entity-row
+                name: Betalt för solel idag (inkl reduktion)
+                icon: mdi:panda
+                state: >
+                  {{ ((states('input_number.sun_sold_today') | float(0))/ 100) |
+                  round(2) }} kr
+              - type: custom:template-entity-row
+                name: Betalt för solel igår
+                icon: mdi:panda
+                state: >
+                  {{ ((states('input_number.sun_sold_yesterday') | float(0))/
+                  100) | round(2) }} kr
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Nordpool
+            entities:
+              - type: custom:template-entity-row
+                name: Spotpriset nu
+                icon: mdi:panda
+                state: >-
+                  {{ states('sensor.nordpool_kwh_se3_sek_3_10_0')|round(2) }}
+                  öre
+              - type: custom:template-entity-row
+                name: Nordpool + tariff + skatt + moms + påslag
+                icon: mdi:panda
+                state: >-
+                  {{ states('sensor.elspotpris_denna_timma') | float(0)  }}
+                  öre/kWh
+              - type: custom:template-entity-row
+                name: Nordpool som ovan + (1 + 2) per timma
+                icon: mdi:panda
+                state: >-
+                  {{ states('sensor.elspotpris_denna_timma_tot') | float(0)  }}
+                  öre/kWh
+      - type: markdown
+        content: >-
+          - Elpriskollen.se
+
+          [https://elpriskollen.se/](https://elpriskollen.se/)
+
+          - Energimarknadsinspektionen
+
+          [https://ei.se/om-oss/nyheter/2022/2022-09-20-efterfrageflexibilitet---hur-kan-det-sanka-mina-elkostnader](https://ei.se/om-oss/nyheter/2022/2022-09-20-efterfrageflexibilitet---hur-kan-det-sanka-mina-elkostnader)
+
+          - Effektsamverkan.se - minska kostnader
+
+          [https://www.effektsamverkan.se/projekt/hur-gor-man-for-att-minska-sina-kostnader-for-uppvarmning](https://www.effektsamverkan.se/projekt/hur-gor-man-for-att-minska-sina-kostnader-for-uppvarmning)
+      - type: entity
+        entity: sensor.nordpool_kwh_se3_sek_3_10_0
+  - theme: Backend-selected
+    title: Automationerna
+    path: automationerna
+    badges: []
+    cards:
+      - type: entities
+        entities:
+          - entity: automation.dagens_energikostnad
+          - entity: automation.dagens_slutliga_energikostnad
+          - entity: automation.manadens_energikostnad
+          - entity: automation.energysum_reset
+          - entity: automation.energysum_month_reset
+          - entity: automation.dagens_solersattning
+          - entity: automation.dagens_slutliga_solersattning
+          - entity: automation.dagens_uppskattade_energikostnad
+          - entity: automation.dagens_uppskattade_slutliga_energikostnad
+          - entity: automation.energysum_month_reset_est
+          - entity: automation.energysum_reset_est
+          - entity: automation.manadens_slutliga_solenergi_ersattning
+          - entity: automation.manadens_solenergi_ersattning
+          - entity: automation.manadens_uppskattade_energikostnad
+          - entity: automation.manadens_uppskattade_slutliga_energikostnad
+          - entity: automation.sun_energysum_month_reset
+          - entity: automation.sun_energysum_reset
+      - type: entities
+        entities:
+          - entity: input_number.dailyenergycost
+          - entity: input_number.cost_yesterday
+          - entity: input_number.monthlyenergycost
+          - entity: input_number.last_monthcost
+          - entity: input_number.sun_sold_today
+          - entity: input_number.sun_sold_last_month
+          - entity: input_number.sun_sold_month
+          - entity: input_number.sun_sold_yesterday
+          - entity: input_number.dailyenergycost_est
+          - entity: input_number.cost_yesterday_est
+          - entity: input_number.monthlyenergycost_est
+          - entity: input_number.last_monthcost_est

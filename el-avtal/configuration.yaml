@@ -1,0 +1,24 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+logger:
+  default: info
+  logs:
+    custom_components.nordpool: debug
+
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+automation ui: !include automations.yaml
+binary_sensor: !include binary_sensor.yaml
+influxdb: !include influxdb.yaml
+input_boolean: !include input_booleans.yaml
+input_number: !include input_numbers.yaml
+scene: !include scenes.yaml
+
+automation manual: !include_dir_merge_list automations/
+script: !include_dir_merge_named scripts/
+sensor: !include_dir_merge_list sensors/
+template: !include_dir_merge_list templates/

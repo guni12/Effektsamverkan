@@ -1,0 +1,222 @@
+elabonnemang_per_ar:
+  name: Elabonnemang per år
+  min: 0
+  max: 10000
+  step: 1
+  mode: box
+  unit_of_measurement: kr
+
+elforsaljning_per_ar:
+  name: Elförsäljning per år
+  min: 0
+  max: 10000
+  step: 0.1
+  mode: box
+  unit_of_measurement: kr
+
+elskatt:
+  name: Elskatt
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh
+
+eltariff_hoglast:
+  name: Eltariff höglast nov-mars
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh
+
+eltariff_laglast:
+  name: Eltariff låglast april-okt
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh
+
+energiersattning:
+  name: Energiersättning
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh
+
+enkeltariff:
+  name: Enkeltariff
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh
+
+ersattning_solel_spot:
+  name: Spot plus minus detta
+  min: -50
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh
+
+pris_fast:
+  name: Pris fast
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh  
+
+pris_rorligt:
+  name: Pris rörligt
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh   
+
+paslag_fast:
+  name: Påslag fast
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh   
+
+paslag_rorligt:
+  name: Påslag rorligt
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh 
+
+paslag_spot:
+  name: Påslag spot
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh 
+
+skattereduktion:
+  name: Skattereduktion
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh
+
+uppskattat_rorligt:
+  name: Uppskattat rörligt
+  min: 0
+  max: 1000
+  step: 0.1
+  mode: box
+  unit_of_measurement: öre/kWh  
+
+
+##############################
+
+# Automationer - el-avtal
+
+##############################
+
+dailyenergycost:
+    name: Dagskostnad el
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+cost_yesterday:
+    name: Yesterday cost
+    unit_of_measurement: "öre"
+    min: 0
+    max: 9999999
+    step: 0.1
+    mode: box
+
+monthlyenergycost:
+    name: Elkostnad denna månad
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+last_monthcost:
+    name: Förra månadens elkostnad
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+sun_sold_today:
+    name: Dagens sålda solel
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+sun_sold_yesterday:
+    name: Gårdagens sålda solel
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+sun_sold_month:
+    name: Månadens sålda el
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+sun_sold_last_month:
+    name: Föregående månads sålda el
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+dailyenergycost_est:
+    name: Dagskostnad el est
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+cost_yesterday_est:
+    name: Yesterday cost est
+    unit_of_measurement: "öre"
+    min: 0
+    max: 9999999
+    step: 0.1
+    mode: box
+
+monthlyenergycost_est:
+    name: Elkostnad denna månad est
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1
+
+last_monthcost_est:
+    name: Förra månadens elkostnad est
+    unit_of_measurement: "öre"
+    mode: box
+    min: 0
+    max: 99999999
+    step: 0.1

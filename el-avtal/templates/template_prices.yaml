@@ -1,0 +1,356 @@
+#######################
+
+# Allmänt
+
+#######################
+          
+- sensor:
+    - name: "Maxprice tomorrow"
+      unique_id: tomorrow_max
+      unit_of_measurement: "SEK/kWh"
+      state: >
+        {% if states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow -%}
+            {% set x = states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow | sort %}
+              {{ x[23] }}
+          {% else %}
+            {{ 0 }}
+          {% endif %}
+          
+      
+- sensor:
+    - name: "Minprice tomorrow"
+      unique_id: tomorrow_min
+      unit_of_measurement: "SEK/kWh"
+      state: >
+          {% if states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow -%}
+            {% set x = states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow | sort %}
+              {{ x[0] }}
+          {% else %}
+            {{ 0 }}
+          {% endif %}
+          
+          
+- sensor:
+  - name: "Skatt med moms"
+    unique_id: skatt_med_moms
+    unit_of_measurement: "öre/kWh"
+    state: >
+        {% set x = states('input_number.elskatt') | float(0)  %}
+        {{ ((x * 0.25) + x) | round(0) }}
+
+
+- sensor:
+  - name: "Skattereduktion"
+    unique_id: skattereduktion
+    unit_of_measurement: "öre/kWh"
+    state: '{{ states("input_number.skattereduktion") | float(0) }}'
+          
+          
+##############################
+
+# Valda inställningar
+
+###############################
+
+- sensor:
+  - name: "Vald tariff"
+    unique_id: vald_tariff
+    unit_of_measurement: "öre/kWh"
+    state: >
+      {% set low = states('input_number.eltariff_laglast') | float(0) %}
+      {% set high = states('input_number.eltariff_hoglast') | float(0) %}
+      {% set simple = states('input_number.enkeltariff') | float(0) %}
+      {% if states("input_boolean.tidstariff") == "on" %}
+        {% if now().month >= 4 and now().month < 11 %}
+          {{ low }}
+        {% elif (now().month >= 11 or now().month < 4) and (now().hour < 6 or now().hour >= 22) %}
+          {{ low }}
+        {% elif (now().month >= 11 or now().month < 4) and (states('binary_sensor.workday_sensor') == 'off') %}
+          {{ low }}
+        {% else %}
+          {{ high }}
+        {% endif %}
+      {% elif states("input_boolean.enkeltariff") == "on" %}
+        {{ simple }}
+      {% else %}
+        {{ 0 }}
+      {% endif %}
+
+
+- sensor:
+  - name: "Valt elavtal"
+    unique_id: valt_elavtal
+    unit_of_measurement: "öre/kWh"
+    state: >      
+      {% if states("input_boolean.fast_elavtal") == "on" %}
+        {% set fast = states("input_number.pris_fast")|float(0)|round(2) %}
+        {{ fast }}
+      {% elif states("input_boolean.rorligt_elavtal") == "on" %}
+        {% set move = states("input_number.pris_rorligt")|float(0)|round(2) %}
+        {{ move }}
+      {% elif states("input_boolean.timspotprisavtal") == "on" %}
+        {% set spot = (states("sensor.nordpool_kwh_se3_sek_3_10_0")|float(0) * 1.25)|round(2)  %}
+        {{ spot }}
+      {% else %}
+        {{ 0 }}
+      {% endif %}
+
+
+- sensor:
+  - name: "Valt elavtal inkl moms och påslag"
+    unique_id: valt_elavtal_inkl_moms_och_paslag
+    unit_of_measurement: "öre/kWh"
+    state: >      
+      {% if states("input_boolean.fast_elavtal") == "on" %}
+        {% set fast = (states("input_number.pris_fast")|float(0) + states("input_number.paslag_fast")|float(0))|round(2) %}
+        {{ fast }}
+      {% elif states("input_boolean.rorligt_elavtal") == "on" %}
+        {% set move = (states("input_number.pris_rorligt")|float(0) + states("input_number.paslag_rorligt")|float(0))|round(2) %}
+        {{ move }}
+      {% elif states("input_boolean.timspotprisavtal") == "on" %}
+        {% set spot = ((states("sensor.nordpool_kwh_se3_sek_3_10_0")|float(0) * 1.25) + states("input_number.paslag_spot")|float(0))|round(2)  %}
+        {{ spot }}
+      {% else %}
+        {{ 0 }}
+      {% endif %}
+
+
+- sensor:
+  - name: "Valt påslag"
+    unique_id: valt_paslag
+    unit_of_measurement: "öre/kWh"
+    state: >      
+      {% if states("input_boolean.fast_elavtal") == "on" %}
+        {% set fast = states("input_number.paslag_fast")|float(0)|round(2) %}
+        {{ fast }}
+      {% elif states("input_boolean.rorligt_elavtal") == "on" %}
+        {% set move = states("input_number.paslag_rorligt")|float(0)|round(2) %}
+        {{ move }}
+      {% elif states("input_boolean.timspotprisavtal") == "on" %}
+        {% set spot = states("input_number.paslag_spot")|float(0)|round(2)  %}
+        {{ spot }}
+      {% else %}
+        {{ 0 }}
+      {% endif %}
+
+
+- sensor:
+  - name: "Solavtal inkl påslag"
+    unique_id: solavtal_inkl_paslag
+    unit_of_measurement: "öre/kWh"
+    state: >      
+      {% set spot = (states("input_number.ersattning_solel_spot")|float(0) + states('sensor.nordpool_kwh_se3_sek_3_10_0') | float(0)) | round(2) %}
+      {{ spot }}
+
+      
+      
+- sensor:
+    - name: "Årsavgift per dag"
+      unique_id: arsavgift_per_dag
+      unit_of_measurement: 'kr'
+      state: >
+        {% set nat = ((states('input_number.elabonnemang_per_ar') | float(0) ) / 365.25)|round(2) %}
+        {% set fors = ((states('input_number.elforsaljning_per_ar') | float(0) ) / 365.25) |round(2) %}
+        {{ (nat + fors) | round(2) }}
+
+- sensor:
+    - name: "Årsavgift per timma"
+      unique_id: arsavgift_per_timma
+      unit_of_measurement: 'kr'
+      state: >
+        {% set tim = ((states('sensor.arsavgift_per_dag') | float(0) ) / 24)|round(2) %}
+        {{ tim }}
+        
+        
+
+##########################################################
+
+# Elkostnader
+
+##########################################################
+
+
+
+- sensor:
+    - name: Elkostnad totalt
+      unique_id: elkostnad_totalt
+      unit_of_measurement: öre/kWh
+      state: >
+        {{ (states('sensor.valt_elavtal_inkl_moms_och_paslag') | float(0) + 
+          states('sensor.vald_tariff') | float(0) + 
+          states('sensor.skatt_med_moms') | float(0)) | round(2) }}
+      attributes:
+        min_last_updated:  "{{ (now().minute / 5) | round(0) }}"
+
+
+- sensor:
+    - name: Elkostnad totalt sek
+      unique_id: elkostnad_totalt_sek
+      unit_of_measurement: SEK/kWh
+      state: >
+        {{ ((states('sensor.valt_elavtal_inkl_moms_och_paslag') | float(0) + 
+          states('sensor.vald_tariff') | float(0) + 
+          states('sensor.skatt_med_moms') | float(0))/100)| round(2) }}
+      attributes:
+        min_last_updated:  "{{ (now().minute / 5) | round(0) }}"
+
+
+- sensor:
+    - name: Elkostnad denna timma
+      unique_id: elkostnad_denna_timma
+      unit_of_measurement: öre
+      state: >
+        {{ (states('sensor.t_energi')|float(0) * states('sensor.elkostnad_totalt') | float(0)) | round(2) }}
+
+
+
+- sensor:
+    - name: Elkostnad denna timma tot
+      unique_id: elkostnad_denna_timma_tot
+      unit_of_measurement: öre
+      state: >
+        {{ (states('sensor.t_energi')|float(0) * 
+          (states('sensor.elkostnad_totalt') | float(0) +
+          states('sensor.arsavgift_per_timma') | float(0) * 100 )) | round(2) }}
+      
+      
+      
+##########################################################
+
+# Spotpris
+
+##########################################################
+
+
+- sensor:
+    - name: Timspotprisavtal
+      unique_id: timspotprisavtal
+      unit_of_measurement: 'öre/kWh'
+      state: >
+        {% set spot = ((states("sensor.nordpool_kwh_se3_sek_3_10_0")|float(0) * 1.25) + states("input_number.paslag_spot")|float(0))|round(2)  %}
+        {{ spot }}
+        
+        
+- sensor:
+    - name: Elspotpris denna timma
+      unique_id: elspotpris_denna_timma
+      unit_of_measurement: 'öre/kWh'
+      state: >
+            {{ ((states('sensor.timspotprisavtal') | float(0) ) + 
+            states('sensor.vald_tariff') | float(0) + 
+            states('sensor.skatt_med_moms') | float(0)) | round(1) }}
+      attributes:
+        min_last_updated:  "{{ (now().minute / 5) | round(0) }}"
+
+
+- sensor:
+    - name: Elspotpris denna timma tot
+      unique_id: elspotpris_denna_timma_tot
+      unit_of_measurement: 'öre/kWh'
+      state: >
+            {{ ((states('sensor.elspotpris_denna_timma') | float(0)) + 
+            (states('sensor.arsavgift_per_timma') | float(0) * 100 )) | round(1) }}
+      attributes:
+        min_last_updated:  "{{ (now().minute / 5) | round(0) }}"
+
+
+- sensor:
+    - name: Elkostnad spot denna timma
+      unique_id: elkostnad_spot_denna_timma
+      unit_of_measurement: öre
+      state: >
+        {{ (states('sensor.t_energi')|float(0) * 
+          states('sensor.elspotpris_denna_timma') | float(0)) | round(2) }}
+          
+          
+- sensor:
+    - name: Elkostnad spot denna timma_tot
+      unique_id: elkostnad_spot_denna_timma_tot
+      unit_of_measurement: öre
+      state: >
+        {{ (states('sensor.t_energi')|float(0) * 
+          states('sensor.elspotpris_denna_timma_tot') | float(0)) | round(2) }}
+
+
+
+
+##########################################################
+
+# Uppskattat rörligt pris
+
+##########################################################
+
+- sensor:
+    - name: Uppskattat rörligt vinterpris
+      unique_id: uppskattat_rorligt_vinterpris
+      unit_of_measurement: 'öre/kWh'
+      state: >
+        {{ (states('input_number.uppskattat_rorligt')|float(0)) * 1.25 | round(2) }}
+
+
+- sensor:
+    - name: Uppskattat rörligt vinterpris med tariff
+      unique_id: uppskattat_rorligt_vinterpris_med_tariff
+      unit_of_measurement: 'öre/kWh'
+      state: >
+        {{ states('sensor.uppskattat_rorligt_vinterpris')|float(0) + states('sensor.vald_tariff') | float(0) + 
+          states('sensor.skatt') | float(0) | round(2) }}
+
+
+- sensor:
+    - name: Uppskattat rörligt vinterpris med tariff tot
+      unique_id: uppskattat_rorligt_vinterpris_med_tariff_tot
+      unit_of_measurement: 'öre/kWh'
+      state: >
+        {{ states('sensor.uppskattat_rorligt_vinterpris')|float(0) + states('sensor.vald_tariff') | float(0) + 
+          states('sensor.skatt') | float(0) +
+          (states('sensor.arsavgift_per_timma') | float(0) * 100 ) | round(2) }}
+
+
+
+- sensor:
+    - name: Uppskattat rörligt denna timma
+      unique_id: uppskattat_rorligt_denna_timma
+      unit_of_measurement: öre
+      state: >
+        {{ (states('sensor.t_energi')|float(0) * 
+          states('sensor.uppskattat_rorligt_vinterpris_med_tariff') | float(0)) | round(2) }}
+          
+- sensor:
+    - name: Uppskattat rörligt denna timma_tot
+      unique_id: uppskattat_rorligt_denna_timma_tot
+      unit_of_measurement: öre
+      state: >
+        {{ (states('sensor.t_energi')|float(0) * 
+          states('sensor.uppskattat_rorligt_vinterpris_med_tariff_tot') | float(0)) | round(2) }}
+
+
+###########################################################
+
+# Sol
+
+##############################################################
+
+- sensor:
+  - name: "Ditt solavtal plus nätersättning"
+    unique_id: ditt_solavtal_plus_natersattning
+    unit_of_measurement: "öre/kWh"
+    state: >
+      {{ (states('sensor.solavtal_inkl_paslag') | float(0) + 
+      states('input_number.energiersattning') | float(0)) | round(1) }}
+    attributes:
+        min_last_updated:  "{{ (now().minute / 5) | round(0) }}"
+
+
+- sensor:
+  - name: "Betalt för solel denna timma"
+    unique_id: betalt_for_solel_denna_timma
+    unit_of_measurement: "öre"
+    state: >
+      {{ (states('sensor.s_energi')|float(0) *
+      (states('sensor.ditt_solavtal_plus_natersattning') | float(0) +
+      states('sensor.skattereduktion') | float(0))) | round(1) }}
+
+
+
+

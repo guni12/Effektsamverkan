@@ -1,0 +1,251 @@
+- alias: Dagens energikostnad
+  trigger:
+    - platform: time_pattern
+      minutes: '59'
+      seconds: '59'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.dailyenergycost
+        value: >
+          {% set previous = states('input_number.dailyenergycost')|float(0) %}
+          {% set current = states('sensor.elkostnad_denna_timma')|float(0) %}
+          {{ (previous + current) | round(2) }}
+
+
+- alias: Dagens slutliga energikostnad
+  trigger:
+    - platform: time_pattern
+      hours: '0'
+      minutes: '0'
+      seconds: '1'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.cost_yesterday
+        value: >
+          {% set day = states('input_number.dailyenergycost')|float(0) %}
+          {{ day | round(2) }} 
+
+
+- alias: Månadens energikostnad
+  trigger:
+    - platform: time
+      at: '00:00:03'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.monthlyenergycost
+        value: >
+          {% set previous = states('input_number.monthlyenergycost')|float(0) %}
+          {% set current = states('input_number.cost_yesterday')|float(0) %}
+          {{ (previous + current) | round(2) }}
+
+
+- id: Energysum_reset
+  alias: Energysum reset
+  trigger:
+    - platform: time_pattern
+      hours: '0'
+      minutes: '0'
+      seconds: '5'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.dailyenergycost
+        value: "{{ 0 }}"
+        
+        
+- id: Energysum_month_reset
+  alias: Energysum month reset
+  trigger:
+    - platform: time
+      at: '00:00:05'
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.monthlyenergycost
+        value: "{{ 0 }}"
+        
+
+
+
+- alias: Dagens solersättning
+  trigger:
+    - platform: time_pattern
+      minutes: '59'
+      seconds: '59'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.sun_sold_today
+        value: >
+          {% set previous = states('input_number.sun_sold_today')|float(0) %}
+          {% set current = states('sensor.betalt_for_solel_denna_timma')|float(0) %}
+          {{ (previous + current) | round(2) }}
+
+
+- alias: Dagens slutliga solersättning
+  trigger:
+    - platform: time_pattern
+      hours: '0'
+      minutes: '0'
+      seconds: '1'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.sun_sold_yesterday
+        value: >
+          {{ states('input_number.sun_sold_today')|float(0)| round(2) }}
+          
+- id: Sun_energysum_reset
+  alias: Sun_energysum reset
+  trigger:
+    - platform: time_pattern
+      hours: '0'
+      minutes: '0'
+      seconds: '5'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.sun_sold_today
+        value: "{{ 0 }}"
+        
+- alias: Månadens solenergi ersättning
+  trigger:
+    - platform: time
+      at: '00:00:03'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.sun_sold_month
+        value: >
+          {% set previous = states('input_number.sun_sold_month')|float(0) %}
+          {% set current = states('input_number.sun_sold_yesterday')|float(0) %}
+          {{ (previous + current) | round(2) }}
+          
+- alias: Månadens slutliga solenergi ersättning
+  trigger:
+    - platform: time
+      at: '00:00:05'
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.sun_sold_last_month
+        value: >
+          {% set previous = states('input_number.sun_sold_month')|float(0) %}
+          {{ previous | round(2) }}
+
+    
+- id: Sun_energysum_month_reset
+  alias: Sun_energysum month reset
+  trigger:
+    - platform: time
+      at: '00:00:05'
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.sun_sold_month
+        value: "{{ 0 }}"
+
+        
+        
+        
+#       
+# Uppskattade rörliga priser bygger på 400öre/kWh
+#
+- alias: Dagens uppskattade energikostnad
+  trigger:
+    - platform: time_pattern
+      minutes: '59'
+      seconds: '59'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.dailyenergycost_est
+        value: >
+          {% set previous = states('input_number.dailyenergycost_est')|float(0) %}
+          {% set current = states('sensor.uppskattat_rorligt_denna_timma')|float(0) %}
+          {{ (previous + current) | round(2) }}
+
+
+- alias: Dagens uppskattade slutliga energikostnad
+  trigger:
+    - platform: time_pattern
+      hours: '00'
+      minutes: '00'
+      seconds: '01'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.cost_yesterday_est
+        value: >
+          {% set day = states('input_number.dailyenergycost_est')|float(0) %}
+          {{ day | round(2) }}
+
+
+- alias: Månadens uppskattade energikostnad
+  trigger:
+    - platform: time
+      at: '00:00:05'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.monthlyenergycost_est
+        value: >
+          {% set previous = states('input_number.monthlyenergycost_est')|float(0) %}
+          {% set current = states('input_number.cost_yesterday_est')|float(0) %}
+          {{ (previous + current) | round(2) }}
+          
+- alias: Månadens uppskattade slutliga energikostnad
+  trigger:
+    - platform: time
+      at: '00:00:05'
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.last_monthcost_est
+        value: >
+          {{ states('input_number.monthlyenergycost_est')|float(0) | round(2) }}
+
+
+- id: Energysum_reset_est
+  alias: Energysum reset est
+  trigger:
+    - platform: time_pattern
+      hours: '0'
+      minutes: '0'
+      seconds: '06'
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.dailyenergycost_est
+        value: "{{ 0 }}"
+        
+        
+- id: Energysum_month_reset_est
+  alias: Energysum month reset est
+  trigger:
+    - platform: time
+      at: '00:00:06'
+  condition:
+    condition: template
+    value_template: "{{ now().day == 1 }}"
+  action:
+    - service: input_number.set_value
+      data_template:
+        entity_id: input_number.monthlyenergycost_est
+        value: "{{ 0 }}"
+        
