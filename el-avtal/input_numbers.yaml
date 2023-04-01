@@ -1,3 +1,9 @@
+##############################
+
+# input_numbers till el-avtal
+
+##############################
+
 elabonnemang_per_ar:
   name: Elabonnemang per år
   min: 0
@@ -119,11 +125,12 @@ uppskattat_rorligt:
   unit_of_measurement: öre/kWh  
 
 
-##############################
+##############################################
 
-# Automationer - el-avtal
+# input_numbers för Automationer till el-avtal
+# de skall inte fyllas i manuellt
 
-##############################
+###############################################
 
 dailyenergycost:
     name: Dagskostnad el
