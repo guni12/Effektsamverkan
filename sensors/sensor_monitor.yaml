@@ -30,3 +30,5 @@
     - type: load_1m
     - type: load_5m
     - type: load_15m
+    - type: processor_temperature
+    - type: last_boot

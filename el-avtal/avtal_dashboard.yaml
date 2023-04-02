@@ -716,6 +716,44 @@ views:
                 state: >
                   {{ ((states('input_number.sun_sold_yesterday') | float(0))/
                   100) | round(2) }} kr
+      - type: entities
+        entities:
+          - entity: input_number.dailyenergycost_est
+          - entity: input_number.cost_yesterday_est
+          - entity: input_number.monthlyenergycost_est
+          - entity: input_number.last_monthcost_est
+          - type: custom:template-entity-row
+            name: Uppskattat rörligt vinterpris
+            icon: mdi:panda
+            state: >-
+              {{ (states('sensor.uppskattat_rorligt_vinterpris') | float(0) /
+              100) | round(2) }} kr
+          - type: custom:template-entity-row
+            name: Uppskattat rörligt vinterpris (tariff, skatt)
+            icon: mdi:panda
+            state: >-
+              {{ (states('sensor.uppskattat_rorligt_vinterpris_med_tariff') |
+              float(0) / 100) | round(2) }} kr
+          - type: custom:template-entity-row
+            name: Uppskattat rörligt vinterpris (tariff, skatt, årsavg)
+            icon: mdi:panda
+            state: >-
+              {{ (states('sensor.uppskattat_rorligt_vinterpris_med_tariff_tot')
+              | float(0) / 100) | round(2) }} kr
+          - type: custom:template-entity-row
+            name: Uppskattat denna timma (tariff, skatt)
+            icon: mdi:panda
+            state: >-
+              {{ (states('sensor.uppskattat_rorligt_denna_timma') | float(0) /
+              100) | round(2) }} kr
+          - type: custom:template-entity-row
+            name: Uppskattat denna timma tot (tariff, skatt, årsavg)
+            icon: mdi:panda
+            state: >-
+              {{ (states('sensor.uppskattat_rorligt_denna_timma_tot') | float(0)
+              / 100) | round(2) }} kr
+        title: 'Uppskattat rörligt pris '
+        show_header_toggle: false
       - type: vertical-stack
         cards:
           - type: entities

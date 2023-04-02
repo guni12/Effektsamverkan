@@ -26,6 +26,8 @@ views:
           - entity: sensor.load_1m
           - entity: sensor.load_5m
           - entity: sensor.load_15m
+          - entity: sensor.processor_temperature
+          - entity: sensor.last_boot
       - type: horizontal-stack
         cards:
           - type: gauge
@@ -56,3 +58,24 @@ views:
               green: 0
               yellow: 50
               red: 80
+      - title: Domain-data
+        type: vertical-stack
+        cards:
+          - type: entities
+            entities:
+              - type: custom:template-entity-row
+                name: Antal domäner
+                icon: mdi:panda
+                state: '{{ states|length }} '
+      - type: markdown
+        content: |-
+          <ha-icon icon="mdi:wifi-check"></ha-icon>
+          ## Wifigränser
+
+            - -30 dBm - Maximalt bra 
+            - -50 dBm - Utmärkt
+            - -60 dBm - Bra, pålitligt
+            - -67 dBm - Minsta pålitliga
+            - -70 dBm - Inte så bra
+            - -80 dBm - Inte pålitligt
+            - -90 dBm - Svårt få kontakt
