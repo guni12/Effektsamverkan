@@ -27,11 +27,12 @@ views:
       - type: markdown
         content: |
           <ha-icon icon="mdi:timelapse"></ha-icon>
-          Norpoolpriserna sorterade
+          Nordpoolpriserna sorterade
           {% set all = state_attr('sensor.sorted_and_average','hours') %}
+            {% set m = now().month %}
             {% for l in all %}
-              - {{ l.1 }} - {{ (l.0) | round(2) }} kr
-            {%- endfor %}
+              - kl.{{ l.hour }} {{ l.day }}/{{ m }} Pris: {{ l.price }} öre
+            {%- endfor %}  
   - theme: Backend-selected
     title: Info
     path: info

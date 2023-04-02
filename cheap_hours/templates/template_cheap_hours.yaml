@@ -279,6 +279,7 @@
         {{ last }}
 
 
+
 #
 # State: visar dagens medelpris
 #
@@ -287,46 +288,79 @@
 - sensor:
   - name: "Sorted and average"
     unique_id: sorted_and_average
-    state: "{{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','average') | round(4) }}"
+    state: "{{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','average') | round(3) }}"
     attributes:
         hours: >
           {%- set ns = namespace(hour_price=[]) %}
           {%- set ns2 = namespace(hour_price2=[]) %}
           {% set ldom = states('sensor.last_day_this_month') | int(0) %}
           {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
-          {%- set tod = state_attr(np,'raw_today') %}
           {% set tom = now().day + 1 %}
           {% if now().day == ldom %}
-            {% set tom = 1 %}
+             {% set tom = 1 %}
           {% endif %}
+          {%- set tod = state_attr(np,'raw_today') %}
+          {%- set tomr = state_attr(np,'raw_tomorrow') %}
+          {%- set s = namespace(sorted=[]) %} 
+          {%- set s2 = namespace(sorted=[]) %}  
+          {%- set chosen = namespace(sorted=[]) %} 
+          {%- set chosendict = namespace(sorted=[]) %}
           
           {% if state_attr(np, "tomorrow_valid")==true and state_attr(np, "tomorrow")[0]!=None %}
             {% for i in range(now().hour, 24) %}
               {% if state_attr(np, "raw_tomorrow")[i].value != None %}
-                {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
-                {% set ns.hour_price = ns.hour_price + [(when, tod[i].value)] %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
               {% endif %}
             {%- endfor -%}
             {% for i in range(0, 24) %}
               {% if state_attr(np, "raw_tomorrow")[i].value != None %}
-                {% set when =  ' kl. ' + i| string + ' day: ' + tom | string %}
-                {% set ns.hour_price = ns.hour_price + [(when, state_attr(np, "raw_tomorrow")[i].value)] %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tomr[i].start.hour, 
+                'price': tomr[i].value,
+                'day': tomr[i].start.day
+                }] %}
               {% endif %}
             {%- endfor -%}
 
           {% else %}
-            {% for i in range(now().hour, 24) %}
-              {% if tod[i].value != None %}
-                {% set when =  ' kl. ' + i| string + ' day: ' + (now().day) | string %}
-                {% set ns.hour_price = ns.hour_price + [(when, tod[i].value)] %}
-              {% endif %}
+             {% for i in range(now().hour, 24) %}
+               {% if state_attr(np, "raw_today")[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                'price': tod[i].value,
+                'day': tod[i].start.day
+                }] %}
+               {% endif %}
             {%- endfor -%}
           {% endif %}
           
-          {% set hour_price_dict = dict.from_keys(ns.hour_price) %}
-          {% set sorted_hour_price_dict = hour_price_dict.items()|sort(attribute='1') %}
-          {% for each in sorted_hour_price_dict %}
-          {% set ns2.hour_price2 = ns2.hour_price2 + [(each[1], each[0])] %}
-             {%- if not loop.last -%}{% endif %}
+          {% for user in ns.hour_price|sort(attribute="price") %}
+            {% set s.sorted = s.sorted + [user] %}
           {% endfor %}
-          {{ ns2.hour_price2 }}
+          
+          {% for each in range(0, 24) %}
+            {% set h = s.sorted[each]['hour'] %}
+            {% set d = s.sorted[each]['day'] %}
+            {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
+            {%- if not loop.last -%}{% endif %}
+          {% endfor %}
+
+          {% set sorted = chosen.sorted|sort(attribute='hour') %}
+          {% set firstday = chosen.sorted|sort(attribute='day') %}
+          {% set first = firstday[0]['day'] %}
+
+          {% for item in range(0, sorted|length) %}
+            {% set hour = sorted[item]['hour'] %}
+            {% set day = sorted[item]['day'] %}
+            {% set price = sorted[item]['price'] %}
+
+
+            {% if sorted[item]['day'] == first %}
+              {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+            {% else %}
+              {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+            {% endif %} 
+          {% endfor %}
+          {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
+          {{ chosendict.sorted }}
