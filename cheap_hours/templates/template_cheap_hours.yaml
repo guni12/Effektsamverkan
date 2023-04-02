@@ -339,7 +339,7 @@
             {% set s.sorted = s.sorted + [user] %}
           {% endfor %}
           
-          {% for each in range(0, 24) %}
+          {% for each in range(0, s.sorted|length) %}
             {% set h = s.sorted[each]['hour'] %}
             {% set d = s.sorted[each]['day'] %}
             {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
