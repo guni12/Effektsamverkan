@@ -67,7 +67,7 @@
                 }] %}
               {% endif %}
             {%- endfor -%}
-            {% for i in range(0, to) %}
+            {% for i in range(0, to+1) %}
               {% if tom[i].value != None %}
                 {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
                 'price': tom[i].value,
@@ -78,7 +78,7 @@
             {% elif (state_attr(np, "tomorrow_valid")==false) or
              (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
               {% if from > to %}{% set from = 0 %}{% endif %}
-              {% for i in range(from, to) %}
+              {% for i in range(from, to+1) %}
                 {% if tod[i].value != None %}
                   {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
                     'price': tod[i].value,
@@ -87,7 +87,7 @@
                 {% endif %}
               {%- endfor -%}
             {%- else -%}
-              {% for i in range(from, to) %}
+              {% for i in range(from, to+1) %}
                 {% if tod[i].value != None %}
                   {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
                   'price': tod[i].value,
@@ -160,7 +160,7 @@
                 }] %}
               {% endif %}
             {%- endfor -%}
-            {% for i in range(0, to) %}
+            {% for i in range(0, to+1) %}
               {% if tom[i].value != None %}
                 {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
                 'price': tom[i].value,
@@ -172,7 +172,7 @@
             {% elif (state_attr(np, "tomorrow_valid")==false) or
               (state_attr(np, "tomorrow_valid")==true and stoptoday == True) %}
               {% if from > to %}{% set from = 0 %}{% endif %}
-              {% for i in range(from, to) %}
+              {% for i in range(from, to+1) %}
                 {% if tod[i].value != None %}
                   {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
                   'price': tod[i].value,
@@ -182,7 +182,7 @@
               {%- endfor -%}
 
             {%- else -%}
-              {% for i in range(from, to) %}
+              {% for i in range(from, to+1) %}
                 {% if tod[i].value != None %}
                   {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
                   'price': tod[i].value,
