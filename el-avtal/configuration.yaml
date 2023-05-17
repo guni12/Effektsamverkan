@@ -12,7 +12,6 @@ tts:
   - platform: google_translate
 
 automation ui: !include automations.yaml
-binary_sensor: !include binary_sensor.yaml
 influxdb: !include influxdb.yaml
 input_boolean: !include input_booleans.yaml
 input_number: !include input_numbers.yaml

@@ -18,8 +18,7 @@ views:
         content: >
           <ha-icon icon="mdi:water-boiler"></ha-icon> Demos valda timmar {% set
           demo = state_attr('sensor.load_demo_between_hours','chosen_hours') %}
-          {% if demo %}
-          {% set m = now().month %}
+          {% if demo %} {% set m = now().month %}
             {% for l in demo %}
               - kl.{{ l.hour }} {{ l.day }}/{{ m }} Pris: {{ l.price }} öre
             {%- endfor %}
@@ -29,9 +28,16 @@ views:
           <ha-icon icon="mdi:timelapse"></ha-icon>
           Nordpoolpriserna sorterade
           {% set all = state_attr('sensor.sorted_and_average','hours') %}
-            {% set m = now().month %}
             {% for l in all %}
-              - kl.{{ l.hour }} {{ l.day }}/{{ m }} Pris: {{ l.price }} öre
+              - kl.{{ l.hour }} {{ l.day }}/{{ l.month }} Pris: {{ l.price }} öre
+            {%- endfor %}  
+      - type: markdown
+        content: |
+          <ha-icon icon="mdi:timelapse"></ha-icon>
+          Alla Nordpoolpriserna sorterade
+          {% set all = state_attr('sensor.all_sorted_and_average','hours') %}
+            {% for l in all %}
+              - kl.{{ l.hour }} {{ l.day }}/{{ l.month }} Pris: {{ l.price }} öre
             {%- endfor %}  
   - theme: Backend-selected
     title: Info
