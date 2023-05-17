@@ -61,17 +61,21 @@
           and state_attr(np, "tomorrow")[0]!=None %}          
             {% for i in range(from, 24) %}
               {% if tod[i].value != None %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day,
+                  'month': tod[i].start.month
                 }] %}
               {% endif %}
             {%- endfor -%}
             {% for i in range(0, to+1) %}
               {% if tom[i].value != None %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
-                'price': tom[i].value,
-                'day': tom[i].start.day
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tom[i].start.hour, 
+                  'price': tom[i].value,
+                  'day': tom[i].start.day,
+                  'month': tom[i].start.month
                 }] %}
               {% endif %}
             {%- endfor -%}
@@ -80,18 +84,22 @@
               {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to+1) %}
                 {% if tod[i].value != None %}
-                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
+                  {% set ns.hour_price = ns.hour_price + [{
+                    'hour': tod[i].start.hour, 
                     'price': tod[i].value,
-                    'day': tod[i].start.day
+                    'day': tod[i].start.day,
+                    'month': tod[i].start.month
                   }] %}
                 {% endif %}
               {%- endfor -%}
             {%- else -%}
               {% for i in range(from, to+1) %}
                 {% if tod[i].value != None %}
-                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                  'price': tod[i].value,
-                  'day': tod[i].start.day
+                  {% set ns.hour_price = ns.hour_price + [{
+                    'hour': tod[i].start.hour, 
+                    'price': tod[i].value,
+                    'day': tod[i].start.day,
+                    'month': tod[i].start.month
                   }] %}
                 {% endif %}
               {%- endfor -%}
@@ -154,17 +162,21 @@
           and state_attr(np, "tomorrow")[0]!=None %}         
             {% for i in range(from, 24) %}
               {% if tod[i].value != None %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day,
+                  'month': tod[i].start.month
                 }] %}
               {% endif %}
             {%- endfor -%}
             {% for i in range(0, to+1) %}
               {% if tom[i].value != None %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tom[i].start.hour, 
-                'price': tom[i].value,
-                'day': tom[i].start.day
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tom[i].start.hour, 
+                  'price': tom[i].value,
+                  'day': tom[i].start.day,
+                  'month': tod[i].start.month
                 }] %}
               {% endif %}
             {%- endfor -%}
@@ -174,9 +186,11 @@
               {% if from > to %}{% set from = 0 %}{% endif %}
               {% for i in range(from, to+1) %}
                 {% if tod[i].value != None %}
-                  {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                  'price': tod[i].value,
-                  'day': tod[i].start.day
+                  {% set ns.hour_price = ns.hour_price + [{
+                    'hour': tod[i].start.hour, 
+                    'price': tod[i].value,
+                    'day': tod[i].start.day,
+                    'month': tod[i].start.month
                   }] %}
                 {% endif %}
               {%- endfor -%}
@@ -219,13 +233,14 @@
               {% for item in range(0, sorted|length) %}
                 {% set hour = sorted[item]['hour'] %}
                 {% set day = sorted[item]['day'] %}
+                {% set month = sorted[item]['month'] %}
                 {% set price = sorted[item]['price'] %}
               
 
                 {% if sorted[item]['day'] == first %}
-                  {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+                  {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'month':month, 'price':price}] %}
                  {% else %}
-                   {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
+                   {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'month':month, 'price':price}] %}
                  {% endif %} 
               {% endfor %}
               {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
@@ -286,6 +301,75 @@
 # Attribut: Sorterade tillgängliga nordpoolpriser enligt pris med dag och tid
 #
 - sensor:
+  - name: "All Sorted and average"
+    unique_id: all_sorted_and_average
+    state: "{{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','average') | round(3) }}"
+    attributes:
+        hours: >
+          {%- set ns = namespace(hour_price=[]) %}
+          {%- set ns2 = namespace(hour_price2=[]) %}
+          {% set ldom = states('sensor.last_day_this_month') | int(0) %}
+          {%- set np = "sensor.nordpool_kwh_se3_sek_3_10_0" %} 
+          {% set tom = now().day + 1 %}
+          {% if now().day == ldom %}
+             {% set tom = 1 %}
+          {% endif %}
+          {%- set tod = state_attr(np,'raw_today') %}
+          {%- set tomr = state_attr(np,'raw_tomorrow') %}
+          {%- set s = namespace(sorted=[]) %} 
+          {%- set s2 = namespace(sorted=[]) %}  
+          {%- set chosen = namespace(sorted=[]) %} 
+          {%- set chosendict = namespace(sorted=[]) %}
+          
+          {% if state_attr(np, "tomorrow_valid")==true and state_attr(np, "tomorrow")[0]!=None %}
+            {% for i in range(0, 24) %}
+              {% if state_attr(np, "raw_tomorrow")[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day,
+                  'month': tod[i].start.month
+                }] %}
+              {% endif %}
+            {%- endfor -%}
+            {% for i in range(0, 24) %}
+              {% if state_attr(np, "raw_tomorrow")[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tomr[i].start.hour, 
+                  'price': tomr[i].value,
+                  'day': tomr[i].start.day,
+                  'month': tomr[i].start.month
+                }] %}
+              {% endif %}
+            {%- endfor -%}
+
+          {% else %}
+             {% for i in range(0, 24) %}
+               {% if state_attr(np, "raw_today")[i].value != None %}
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day,
+                  'month': tod[i].start.month
+                }] %}
+               {% endif %}
+            {%- endfor -%}
+          {% endif %}
+          
+          {% for item in ns.hour_price|sort(attribute="price") %}
+            {% set s.sorted = s.sorted + [item] %}
+          {% endfor %}
+
+          {{ s.sorted }}
+
+
+
+#
+# State: visar dagens medelpris
+#
+# Attribut: Sorterade tillgängliga nordpoolpriser enligt pris med dag och tid
+#
+- sensor:
   - name: "Sorted and average"
     unique_id: sorted_and_average
     state: "{{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','average') | round(3) }}"
@@ -309,17 +393,21 @@
           {% if state_attr(np, "tomorrow_valid")==true and state_attr(np, "tomorrow")[0]!=None %}
             {% for i in range(now().hour, 24) %}
               {% if state_attr(np, "raw_tomorrow")[i].value != None %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day,
+                  'month': tod[i].start.month
                 }] %}
               {% endif %}
             {%- endfor -%}
             {% for i in range(0, 24) %}
               {% if state_attr(np, "raw_tomorrow")[i].value != None %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tomr[i].start.hour, 
-                'price': tomr[i].value,
-                'day': tomr[i].start.day
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tomr[i].start.hour, 
+                  'price': tomr[i].value,
+                  'day': tomr[i].start.day,
+                  'month': tomr[i].start.month
                 }] %}
               {% endif %}
             {%- endfor -%}
@@ -327,40 +415,18 @@
           {% else %}
              {% for i in range(now().hour, 24) %}
                {% if state_attr(np, "raw_today")[i].value != None %}
-                {% set ns.hour_price = ns.hour_price + [{'hour': tod[i].start.hour, 
-                'price': tod[i].value,
-                'day': tod[i].start.day
+                {% set ns.hour_price = ns.hour_price + [{
+                  'hour': tod[i].start.hour, 
+                  'price': tod[i].value,
+                  'day': tod[i].start.day,
+                  'month': tod[i].start.month
                 }] %}
                {% endif %}
             {%- endfor -%}
           {% endif %}
           
-          {% for user in ns.hour_price|sort(attribute="price") %}
-            {% set s.sorted = s.sorted + [user] %}
-          {% endfor %}
-          
-          {% for each in range(0, s.sorted|length) %}
-            {% set h = s.sorted[each]['hour'] %}
-            {% set d = s.sorted[each]['day'] %}
-            {% set chosen.sorted = chosen.sorted + [(s.sorted[each])] %}
-            {%- if not loop.last -%}{% endif %}
+          {% for item in ns.hour_price|sort(attribute="price") %}
+            {% set s.sorted = s.sorted + [item] %}
           {% endfor %}
 
-          {% set sorted = chosen.sorted|sort(attribute='hour') %}
-          {% set firstday = chosen.sorted|sort(attribute='day') %}
-          {% set first = firstday[0]['day'] %}
-
-          {% for item in range(0, sorted|length) %}
-            {% set hour = sorted[item]['hour'] %}
-            {% set day = sorted[item]['day'] %}
-            {% set price = sorted[item]['price'] %}
-
-
-            {% if sorted[item]['day'] == first %}
-              {% set s2.sorted = s2.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
-            {% else %}
-              {% set chosendict.sorted = chosendict.sorted + [{'day':day, 'hour':hour, 'price':price}] %}
-            {% endif %} 
-          {% endfor %}
-          {% set chosendict.sorted = s2.sorted + chosendict.sorted %}
-          {{ chosendict.sorted }}
+          {{ s.sorted }}
