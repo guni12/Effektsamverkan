@@ -3,31 +3,32 @@
 # Allmänt
 
 #######################
-          
+
 - sensor:
     - name: "Maxprice tomorrow"
       unique_id: tomorrow_max
       unit_of_measurement: "SEK/kWh"
       state: >
-        {% if states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow -%}
-            {% set x = states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow | sort %}
+        {% set tomspot = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','tomorrow') %}
+        {% if tomspot is number -%}
+            {% set x = tomspot | sort %}
               {{ x[23] }}
           {% else %}
             {{ 0 }}
           {% endif %}
-          
-      
+
 - sensor:
     - name: "Minprice tomorrow"
       unique_id: tomorrow_min
       unit_of_measurement: "SEK/kWh"
       state: >
-          {% if states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow -%}
-            {% set x = states.sensor.nordpool_kwh_se3_sek_3_10_0.attributes.tomorrow | sort %}
-              {{ x[0] }}
-          {% else %}
-            {{ 0 }}
-          {% endif %}
+        {% set tomspot = state_attr('sensor.nordpool_kwh_se3_sek_3_10_0','tomorrow') %}
+        {% if tomspot is number -%}
+          {% set x = tomspot | sort %}
+            {{ x[0] }}
+        {% else %}
+          {{ 0 }}
+        {% endif %}
           
           
 - sensor:
@@ -95,6 +96,28 @@
         {{ 0 }}
       {% endif %}
 
+- sensor:
+    - name: "Spot med moms"
+      unique_id: spot_med_moms
+      unit_of_measurement: "öre/kWh"
+      state: >
+        {% set moms = 1.25 %}
+        {% set spot = states('sensor.nordpool_kwh_se3_sek_3_10_0') |float(0) %}
+        {% if spot > 0 %}
+          {{ spot * moms}}
+        {% else %}
+          {{ spot }}
+        {% endif %}
+
+
+- sensor:
+    - name: Timspotprisavtal
+      unique_id: timspotprisavtal
+      unit_of_measurement: 'öre/kWh'
+      state: >
+        {% set spot = (states("sensor.spot_med_moms")|float(0) + states("input_number.paslag_spot")|float(0))|round(2)  %}
+        {{ spot }}
+
 
 - sensor:
   - name: "Valt elavtal inkl moms och påslag"
@@ -108,8 +131,7 @@
         {% set move = (states("input_number.pris_rorligt")|float(0) + states("input_number.paslag_rorligt")|float(0))|round(2) %}
         {{ move }}
       {% elif states("input_boolean.timspotprisavtal") == "on" %}
-        {% set spot = ((states("sensor.nordpool_kwh_se3_sek_3_10_0")|float(0) * 1.25) + states("input_number.paslag_spot")|float(0))|round(2)  %}
-        {{ spot }}
+        {{ states('sensor.timspotprisavtal') }}
       {% else %}
         {{ 0 }}
       {% endif %}
@@ -220,15 +242,6 @@
 # Spotpris
 
 ##########################################################
-
-
-- sensor:
-    - name: Timspotprisavtal
-      unique_id: timspotprisavtal
-      unit_of_measurement: 'öre/kWh'
-      state: >
-        {% set spot = ((states("sensor.nordpool_kwh_se3_sek_3_10_0")|float(0) * 1.25) + states("input_number.paslag_spot")|float(0))|round(2)  %}
-        {{ spot }}
         
         
 - sensor:

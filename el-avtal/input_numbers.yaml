@@ -7,7 +7,7 @@
 elabonnemang_per_ar:
   name: Elabonnemang per år
   min: 0
-  max: 10000
+  max: 100000
   step: 1
   mode: box
   unit_of_measurement: kr
@@ -15,7 +15,7 @@ elabonnemang_per_ar:
 elforsaljning_per_ar:
   name: Elförsäljning per år
   min: 0
-  max: 10000
+  max: 100000
   step: 0.1
   mode: box
   unit_of_measurement: kr
@@ -125,12 +125,12 @@ uppskattat_rorligt:
   unit_of_measurement: öre/kWh  
 
 
-##############################################
+#######################################################
 
-# input_numbers för Automationer till el-avtal
-# de skall inte fyllas i manuellt
+# input_numbers som fylls i av automationer
+# de skall inte fyllas i manuellt via el-avtal-flikarna
 
-###############################################
+########################################################
 
 dailyenergycost:
     name: Dagskostnad el
