@@ -8,7 +8,6 @@ views:
           - entity: input_number.start_load_demo
           - entity: input_number.stop_load_demo
           - entity: input_number.load_demo_nr_hours
-          - entity: input_number.load_demo_nr_hours_rem
           - entity: input_number.highest_allowed_demo_price
           - entity: input_boolean.load_demo_only_today
           - entity: sensor.load_demo_between_hours
@@ -23,6 +22,10 @@ views:
               - kl.{{ l.hour }} {{ l.day }}/{{ m }} Pris: {{ l.price }} öre
             {%- endfor %}
           {% endif %}
+      - type: entities
+        entities:
+          - entity: input_number.load_demo_nr_hours_rem
+        title: Auto (läs mer under info)
       - type: markdown
         content: |
           <ha-icon icon="mdi:timelapse"></ha-icon>
