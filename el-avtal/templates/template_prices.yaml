@@ -77,25 +77,6 @@
         {{ 0 }}
       {% endif %}
 
-
-- sensor:
-  - name: "Valt elavtal"
-    unique_id: valt_elavtal
-    unit_of_measurement: "öre/kWh"
-    state: >      
-      {% if states("input_boolean.fast_elavtal") == "on" %}
-        {% set fast = states("input_number.pris_fast")|float(0)|round(2) %}
-        {{ fast }}
-      {% elif states("input_boolean.rorligt_elavtal") == "on" %}
-        {% set move = states("input_number.pris_rorligt")|float(0)|round(2) %}
-        {{ move }}
-      {% elif states("input_boolean.timspotprisavtal") == "on" %}
-        {% set spot = (states("sensor.nordpool_kwh_se3_sek_3_10_0")|float(0) * 1.25)|round(2)  %}
-        {{ spot }}
-      {% else %}
-        {{ 0 }}
-      {% endif %}
-
 - sensor:
     - name: "Spot med moms"
       unique_id: spot_med_moms
@@ -109,7 +90,6 @@
           {{ spot }}
         {% endif %}
 
-
 - sensor:
     - name: Timspotprisavtal
       unique_id: timspotprisavtal
@@ -117,6 +97,24 @@
       state: >
         {% set spot = (states("sensor.spot_med_moms")|float(0) + states("input_number.paslag_spot")|float(0))|round(2)  %}
         {{ spot }}
+
+
+- sensor:
+  - name: "Valt elavtal"
+    unique_id: valt_elavtal
+    unit_of_measurement: "öre/kWh"
+    state: >      
+      {% if states("input_boolean.fast_elavtal") == "on" %}
+        {% set fast = states("input_number.pris_fast")|float(0)|round(2) %}
+        {{ fast }}
+      {% elif states("input_boolean.rorligt_elavtal") == "on" %}
+        {% set move = states("input_number.pris_rorligt")|float(0)|round(2) %}
+        {{ move }}
+      {% elif states("input_boolean.timspotprisavtal") == "on" %}
+        {{ states("sensor.timspotprisavtal")|float(0)|round(2) }}
+      {% else %}
+        {{ 0 }}
+      {% endif %}
 
 
 - sensor:
@@ -131,7 +129,8 @@
         {% set move = (states("input_number.pris_rorligt")|float(0) + states("input_number.paslag_rorligt")|float(0))|round(2) %}
         {{ move }}
       {% elif states("input_boolean.timspotprisavtal") == "on" %}
-        {{ states('sensor.timspotprisavtal') }}
+        {% set spot = (states("sensor.timspotprisavtal")|float(0) + states("input_number.paslag_spot")|float(0))|round(2) %}
+        {{ spot }}
       {% else %}
         {{ 0 }}
       {% endif %}
@@ -345,24 +344,31 @@
 ##############################################################
 
 - sensor:
-  - name: "Ditt solavtal plus nätersättning"
-    unique_id: ditt_solavtal_plus_natersattning
-    unit_of_measurement: "öre/kWh"
-    state: >
-      {{ (states('sensor.solavtal_inkl_paslag') | float(0) + 
-      states('input_number.energiersattning') | float(0)) | round(1) }}
-    attributes:
-        min_last_updated:  "{{ (now().minute / 5) | round(0) }}"
-
+    - name: "Ditt solavtal plus nätersättning"
+      unique_id: ditt_solavtal_plus_natersattning
+      unit_of_measurement: "öre/kWh"
+      state: >
+        {% if states("input_boolean.har_solceller") == "on" %}
+          {{ (states('sensor.solavtal_inkl_paslag') | float(0) + 
+            states('input_number.energiersattning') | float(0)) | round(1) }}
+          attributes:
+            min_last_updated: "{{ (now().minute / 5) | round(0) }}"
+        {% else %}
+          {{ 0 }}
+        {% endif %}
 
 - sensor:
-  - name: "Betalt för solel denna timma"
-    unique_id: betalt_for_solel_denna_timma
-    unit_of_measurement: "öre"
-    state: >
-      {{ (states('sensor.s_energi')|float(0) *
-      (states('sensor.ditt_solavtal_plus_natersattning') | float(0) +
-      states('sensor.skattereduktion') | float(0))) | round(1) }}
+    - name: "Betalt för solel denna timma"
+      unique_id: betalt_for_solel_denna_timma
+      unit_of_measurement: "öre"
+      state: >
+        {% if states("input_boolean.har_solceller") == "on" %}
+          {{ (states('sensor.s_energi')|float(0) *
+          (states('sensor.ditt_solavtal_plus_natersattning') | float(0) +
+          states('sensor.skattereduktion') | float(0))) | round(1) }}
+        {% else %}
+          {{ 0 }}
+        {% endif %}
 
 
 
