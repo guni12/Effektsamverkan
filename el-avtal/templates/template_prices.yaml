@@ -351,11 +351,11 @@
         {% if states("input_boolean.har_solceller") == "on" %}
           {{ (states('sensor.solavtal_inkl_paslag') | float(0) + 
             states('input_number.energiersattning') | float(0)) | round(1) }}
-          attributes:
-            min_last_updated: "{{ (now().minute / 5) | round(0) }}"
         {% else %}
           {{ 0 }}
         {% endif %}
+      attributes:
+        min_last_updated: "{{ (now().minute / 5) | round(0) }}"
 
 - sensor:
     - name: "Betalt för solel denna timma"
