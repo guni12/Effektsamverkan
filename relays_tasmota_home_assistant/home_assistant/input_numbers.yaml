@@ -1,0 +1,42 @@
+##############################
+
+# input_numbers till relän
+
+##############################
+
+badrum:
+  name: Badrum
+  min: 0
+  max: 40
+  step: 1
+  mode: box
+  unit_of_measurement: °C
+  icon: mdi:bathtub-outline
+
+sovrum:
+  name: Sovrum
+  min: 0
+  max: 40
+  step: 1
+  mode: box
+  unit_of_measurement: °C
+  icon: mdi:bed
+
+kallare:
+  name: Källare
+  min: 0
+  max: 40
+  step: 1
+  mode: box
+  unit_of_measurement: °C
+  icon: mdi:arrow-down-bold
+
+kok:
+  name: Kök
+  min: 0
+  max: 40
+  step: 1
+  mode: box
+  unit_of_measurement: °C
+  icon: mdi:countertop
+

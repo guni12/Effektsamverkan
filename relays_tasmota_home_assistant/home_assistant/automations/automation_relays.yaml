@@ -1,0 +1,61 @@
+# Anpassa:
+# input_number.x
+# tasmota_XXXXXX
+# till dina hjälpare och ditt %topic%
+# https://tasmota.github.io/docs/MQTT/
+# https://effektsamverkan.se/
+
+- alias: Tasmota26 badrum settings
+  description: ''
+  mode: single
+  trigger:
+  - platform: state
+    entity_id: input_number.badrum
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: cmnd/tasmota_XXXXXX/Mem1
+      payload_template: '{{states(''input_number.badrum'')}}'
+
+- alias: Tasmota26 sovrum settings
+  description: ''
+  mode: single
+  trigger:
+  - platform: state
+    entity_id: input_number.sovrum
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: cmnd/tasmota_XXXXXX/Mem2
+      payload_template: '{{states(''input_number.sovrum'')}}'
+
+- alias: Tasmota26 källare settings
+  description: ''
+  mode: single
+  trigger:
+  - platform: state
+    entity_id: input_number.kallare
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: cmnd/tasmota_XXXXXX/Mem3
+      payload_template: '{{states(''input_number.kallare'')}}'
+
+- alias: Tasmota26 kök settings
+  description: ''
+  mode: single
+  trigger:
+  - platform: state
+    entity_id: input_number.kok
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: cmnd/tasmota_XXXXXX/Mem4
+      payload_template: '{{states(''input_number.kok'')}}'
+
+
+
