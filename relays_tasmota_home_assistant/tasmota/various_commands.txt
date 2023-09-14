@@ -1,25 +1,47 @@
-##############################################
+###########################################################
 #
 # Konfiguration för relä med fyra utgångar
-# Se beskrivning https://effektsamverkan.se/
+# Se beskrivning https://effektsamverkan.se/projekt/relan
 #
-##############################################
-##############################################
+###########################################################
+###########################################################
 
 
-* Klicka på Configuration→Configure Other
-* Byt ut texten i fältet Template till
-=============================================
+* Följande kod kopplar fyra relän (Relay) till GPIO0, GPIO2, GPIO4 och GPIO5 
+* och kopplar en dallasgivare (DS18x20) till GPIO3 (RX på reläkortet)
+*
+* Configuration→Configure Other
+*
+* Byt ut texten i fältet Template och Aktivera
+================================================
 
 {"NAME":"LC Technology 4CH Relay","GPIO":[224,0,225,1312,226,227,0,0,0,0,0,0,0,0],"FLAG":0,"BASE":18}
 
 
+* Alternativ till koden ovan, men med dallasgivaren kopplad till GPIO1 (TX)
+* Kom ihåg rutan Aktivera
+============================================================================
 
-* Klicka på Configuration→Main Menu→Console
-* Avaktivera SerialLog, bekräfta med tangenten Enter
+{"NAME":"LC Technology 4CH Relay","GPIO":[224,1312,225,0,226,227,0,0,0,0,0,0,0,0],"FLAG":0,"BASE":18}
+
+
+#############################################
+#
+# Koden nedan skrivs i terminalen (Console)
+#
+#############################################
+
+*
+* Configuration→Main Menu→Console
+*
+* Skriv koden nedan
+* som avaktiverar SerialLog
+* Mer info: https://tasmota.github.io/docs/Troubleshooting/#logs
+* Bekräfta med tangenten Enter
 ===========================================================
 
-seriallog0
+seriallog 0
+
 
 
 * Kod för svensk tidszon, bekräfta med Enter
@@ -33,7 +55,7 @@ Backlog0 Timezone 99; TimeStd 0,0,10,1,3,60; TimeDst 0,0,3,1,2,120
 ===================================================================
 
 rule1
-on System#Boot do Backlog Baudrate 115200 endon
+on System#Boot do Baudrate 115200 endon
 on SerialReceived#Data=41542B5253540D0A do SerialSend5 5749464920434f4e4e45435445440a5749464920474f542049500a41542b4349504d55583d310a41542b4349505345525645523d312c383038300a41542b43495053544f3d333630 endon
 on Power1#State=1 do SerialSend5 A00101A2 endon
 on Power1#State=0 do SerialSend5 A00100A1 endon
@@ -51,4 +73,11 @@ on DS18B20-3#Temperature<%Mem3% do Power3 1 endon
 on DS18B20-3#Temperature>%Mem3%+0.5 do Power3 0 endon
 on DS18B20-4#Temperature<%Mem4% do Power4 1 endon
 on DS18B20-4#Temperature>%Mem4%+0.5 do Power4 0 endon
+
+* Avsluta regeln med
+======================
+
 rule1 1
+
+* Bekräfta med Enter
+=======================
