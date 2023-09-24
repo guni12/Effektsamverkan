@@ -1,0 +1,164 @@
+title: Relän
+views:
+  - title: 4ch-esphome
+    path: 4channel-esphome
+    badges: []
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:button-card
+                color_type: label-card
+                color: white
+                name: Börvärde °C
+                styles:
+                  name:
+                    - font-size: 20px
+              - type: custom:button-card
+                color_type: label-card
+                color: white
+                name: Ärvärde °C
+                styles:
+                  name:
+                    - font-size: 20px
+              - type: custom:button-card
+                color_type: label-card
+                color: white
+                name: På/Av
+                styles:
+                  name:
+                    - font-size: 20px
+          - type: horizontal-stack
+            cards:
+              - type: entities
+                entities:
+                  - entity: input_number.bor1
+                    type: custom:numberbox-card
+                    icon_plus: mdi:chevron-up
+                    icon_minus: mdi:chevron-down
+                    icon: false
+                    name: false
+                    unit: false
+                    style: |
+                      ha-card .cur-num {
+                        color: green;
+                        margin-top: 20px;
+                        font-size: 20px;
+                        margin-left: -5px;
+                      }
+              - type: custom:button-card
+                entity: sensor.vindstyrka1
+                show_icon: false
+                show_state: true
+                show_name: false
+                styles:
+                  state:
+                    - font-size: 20px
+                  card:
+                    - height: 100%
+              - type: button
+                entity: switch.4ch_relay_relay1
+          - type: horizontal-stack
+            cards:
+              - type: entities
+                entities:
+                  - entity: input_number.bor2
+                    type: custom:numberbox-card
+                    icon_plus: mdi:chevron-up
+                    icon_minus: mdi:chevron-down
+                    icon: false
+                    name: false
+                    unit: false
+                    style: |
+                      ha-card .cur-num {
+                        color: green;
+                        margin-top: 20px;
+                        font-size: 20px;
+                        margin-left: -5px;
+                      }
+              - type: custom:button-card
+                entity: sensor.vindstyrka2
+                show_icon: false
+                show_state: true
+                show_name: false
+                styles:
+                  state:
+                    - font-size: 20px
+                  card:
+                    - height: 100%
+              - type: button
+                entity: switch.4ch_relay_relay2
+          - type: horizontal-stack
+            cards:
+              - type: entities
+                entities:
+                  - entity: input_number.bor3
+                    type: custom:numberbox-card
+                    icon_plus: mdi:chevron-up
+                    icon_minus: mdi:chevron-down
+                    icon: false
+                    name: false
+                    unit: false
+                    style: |
+                      ha-card .cur-num {
+                        color: green;
+                        margin-top: 20px;
+                        font-size: 20px;
+                        margin-left: -5px;
+                      }
+              - type: custom:button-card
+                entity: sensor.vindstyrka3
+                show_icon: false
+                show_state: true
+                show_name: false
+                styles:
+                  state:
+                    - font-size: 20px
+                  card:
+                    - height: 100%
+              - type: button
+                entity: switch.4ch_relay_relay3
+          - type: horizontal-stack
+            cards:
+              - type: entities
+                entities:
+                  - entity: input_number.bor4
+                    type: custom:numberbox-card
+                    icon_plus: mdi:chevron-up
+                    icon_minus: mdi:chevron-down
+                    icon: false
+                    name: false
+                    unit: false
+                    style: |
+                      ha-card .cur-num {
+                        color: green;
+                        margin-top: 20px;
+                        font-size: 20px;
+                        margin-left: -5px;
+                      }
+              - type: custom:button-card
+                entity: sensor.vindstyrka4
+                show_icon: false
+                show_state: true
+                show_name: false
+                styles:
+                  state:
+                    - font-size: 20px
+                  card:
+                    - height: 100%
+              - type: button
+                entity: switch.4ch_relay_relay4
+          - type: horizontal-stack
+            cards:
+              - type: button
+                show_name: true
+                show_icon: true
+                show_state: true
+                name: Knapp för fjärr-omstart
+                icon: mdi:toggle-switch-outline
+                tap_action:
+                  action: call-service
+                  service: switch.turn_on
+                  data:
+                    entity_id: switch.4ch_relay_4switch_a_restart

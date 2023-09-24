@@ -1,0 +1,37 @@
+##############################
+
+# input_numbers till relän
+
+##############################
+
+bor1:
+  name: Bor1
+  min: 0
+  max: 40
+  step: 1
+  mode: box
+
+
+bor2:
+  name: Bor2
+  min: 0
+  max: 40
+  step: 1
+  mode: box
+
+
+bor3:
+  name: Bor3
+  min: 0
+  max: 40
+  step: 1
+  mode: box
+  unit_of_measurement: °C
+  icon: mdi:arrow-down-bold
+
+bor4:
+  name: Bor4
+  min: 0
+  max: 40
+  step: 1
+  mode: box
