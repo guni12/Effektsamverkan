@@ -1,0 +1,7 @@
+tasmota_wifi_reboot:
+  alias: 'Reboot Tasmota_wifi'
+  sequence:
+    - service: mqtt.publish
+      data:
+        topic: cmnd/tasmota_xxxxxx/restart
+        payload: 1
