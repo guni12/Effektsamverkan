@@ -156,3 +156,16 @@ views:
                     - height: 100%
               - type: button
                 entity: switch.tasmota26_kok
+          - type: horizontal-stack
+            cards:
+              - type: button
+                show_name: true
+                show_icon: true
+                show_state: true
+                name: Knapp för fjärr-omstart
+                icon: mdi:toggle-switch-outline
+                tap_action:
+                  action: call-service
+                  service: script.turn_on
+                  data:
+                    entity_id: script.tasmota_wifi_reboot
