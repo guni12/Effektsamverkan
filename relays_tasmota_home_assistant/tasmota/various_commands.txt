@@ -1,7 +1,9 @@
 ###########################################################
 #
 # Konfiguration för relän med fyra utgångar
-# Se beskrivning https://effektsamverkan.se/projekt/relan
+# Se beskrivning 
+# https://effektsamverkan.se/projekt/relan-med-lc-technology-del-1
+# https://effektsamverkan.se/projekt/relan-med-lc-technology-del-2
 #
 # Läs mer här:
 # https://tasmota.github.io/docs/Rules/
